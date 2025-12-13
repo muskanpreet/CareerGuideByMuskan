@@ -298,10 +298,9 @@
                                             ? `<button class="btn-small btn-unblock" onclick="handleUnblock('${booking.id}', '${booking.date}', '${booking.time}')">
                                                 <i class="fas fa-unlock"></i> Unblock
                                               </button>`
-                                            : ''}
-                                        <button class="btn-small btn-delete" onclick="removeBooking('${booking.id}')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                            : `<button class="btn-small btn-delete" onclick="removeBooking('${booking.id}')">
+                                                <i class="fas fa-trash"></i> Delete
+                                              </button>`}
                                     </div>
                                 </td>
                             </tr>

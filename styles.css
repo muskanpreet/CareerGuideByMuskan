@@ -502,6 +502,37 @@ p {
     }
 }
 
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes pulse-shadow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(37, 99, 235, 0);
+    }
+}
+
 .graphic-card {
     position: absolute;
     background: white;
@@ -723,7 +754,7 @@ section {
 
 .section-header {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 100px;
 }
 
 .section-title {
@@ -1867,96 +1898,140 @@ section {
     }
     
     .hero {
-        padding: 100px 0 60px;
+        padding: 80px 0 40px;
+        overflow: visible;
+    }
+    
+    .hero::before {
+        display: none;
+    }
+    
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 30px;
     }
     
     .hero-title {
         font-size: 2.5rem;
+        margin-bottom: 16px;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+        margin-bottom: 24px;
     }
     
     .hero-buttons {
         flex-direction: column;
+        gap: 12px;
+        margin-bottom: 24px;
     }
     
     .hero-stats {
         flex-direction: column;
-        gap: 24px;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    .stat {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: center;
+        min-width: unset;
+        padding: 0;
+        background: none;
+        border: none;
+        transition: none;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 800;
+        display: inline;
+        min-width: 60px;
+    }
+    
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: left;
     }
     
     .hero-graphics {
-        height: 300px;
+        position: relative;
+        height: auto;
+        width: 100%;
+        overflow: visible;
+        display: block;
+        text-align: center;
     }
     
     .central-orb {
+        position: relative;
         width: 120px;
         height: 120px;
+        margin: 0 auto 30px;
+        animation: none;
+        top: auto;
+        left: auto;
+        right: auto;
     }
     
-    .orb-content i {
-        font-size: 2rem;
-        margin-bottom: 6px;
-    }
-    
-    .orb-text {
-        font-size: 0.625rem;
-    }
-    
-    .ring-1 {
-        width: 180px;
-        height: 180px;
-    }
-    
-    .ring-2 {
-        width: 230px;
-        height: 230px;
+    .orbit-ring {
+        display: none;
     }
     
     .orbit-dot {
-        width: 8px;
-        height: 8px;
-    }
-    
-    @keyframes orbitMove {
-        0% {
-            transform: rotate(0deg) translateX(90px) rotate(0deg);
-        }
-        100% {
-            transform: rotate(360deg) translateX(90px) rotate(-360deg);
-        }
+        display: none;
     }
     
     .graphic-card {
-        padding: 16px;
-        min-width: 100px;
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: calc(50% - 8px) !important;
+        display: inline-block;
+        margin: 8px !important;
+        padding: 20px;
+        animation: none !important;
+        background: white;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        min-width: 130px;
+    }
+    
+    .graphic-card:hover {
+        transform: scale(1.05) translateY(-5px);
+        box-shadow: 0 15px 40px rgba(37, 99, 235, 0.2);
     }
     
     .graphic-card i {
-        font-size: 1.75rem;
-        margin-bottom: 8px;
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     .graphic-card h4 {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
+        color: var(--text-primary);
+        font-weight: 600;
     }
     
-    .card-1 {
-        top: 5%;
-        left: 5%;
-    }
-    
-    .card-2 {
-        top: 5%;
-        right: 5%;
-    }
-    
-    .card-3 {
-        bottom: 5%;
-        left: 5%;
-    }
-    
+    .card-1,
+    .card-2,
+    .card-3,
     .card-4 {
-        bottom: 5%;
-        right: 5%;
+        animation: none !important;
     }
     
     .testimonials-grid {
@@ -1993,20 +2068,176 @@ section {
     h1 { font-size: 2rem; }
     h2 { font-size: 1.75rem; }
     
+    .hero {
+        padding: 110px 0 30px;
+        overflow: visible;
+    }
+    
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
     .hero-title {
-        font-size: 2rem;
+        font-size: 1.6rem;
+        margin-bottom: 12px;
+    }
+    
+    .hero-description {
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    
+    .hero-stats {
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .stat {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        gap: 0;
+        justify-content: center;
+        min-width: unset;
+        padding: 0;
+        background: none;
+        border: none;
+        flex: 0 1 auto;
+        width: calc(50% - 8px);
+    }
+    
+    .stat:nth-child(3) {
+        width: 100%;
+        margin-top: 12px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 900;
+        display: block;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: -0.5px;
+    }
+    
+    .stat-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-align: left;
+    }
+    
+    .hero-graphics {
+        position: relative;
+        height: auto;
+        width: 100%;
+        overflow: visible;
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        min-height: 280px;
+    }
+    
+    .central-orb {
+        display: none;
+    }
+    
+    .orb-content i {
+        font-size: 1.5rem;
+        margin-bottom: 4px;
+        display: none;
+    }
+    
+    .orb-text {
+        font-size: 0.5rem;
+    }
+    
+    .orbit-ring {
+        display: none;
+    }
+    
+    .orbit-dot {
+        display: none;
+    }
+    
+    .graphic-card {
+        position: relative !important;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        width: 47% !important;
+        display: inline-block;
+        margin: 5px 1% !important;
+        padding: 14px;
+        animation: slideInUp 0.6s ease-out both !important;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        transition: all 0.3s ease;
+        vertical-align: top;
+    }
+    
+    .graphic-card:active {
+        transform: scale(1.03) translateY(-3px);
+        box-shadow: 0 12px 32px rgba(37, 99, 235, 0.15);
+    }
+    
+    .graphic-card i {
+        font-size: 1.6rem;
+        margin-bottom: 6px;
+        display: block;
+        background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .graphic-card h4 {
+        font-size: 0.75rem;
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+    
+    .card-1 {
+        animation: slideInUp 0.6s ease-out 0.1s both !important;
+    }
+    
+    .card-2 {
+        animation: slideInUp 0.6s ease-out 0.2s both !important;
+    }
+    
+    .card-3 {
+        animation: slideInUp 0.6s ease-out 0.3s both !important;
+    }
+    
+    .card-4 {
+        animation: slideInUp 0.6s ease-out 0.4s both !important;
     }
     
     .btn-large {
-        padding: 14px 24px;
-        font-size: 0.938rem;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        animation: pulse-shadow 2s ease-in-out infinite;
     }
     
     .service-card,
     .pricing-card,
     .booking-form-container,
     .contact-form-container {
-        padding: 24px;
+        padding: 20px;
     }
     
     .contact-grid {
@@ -2015,16 +2246,104 @@ section {
     }
     
     .contact-card {
-        padding: 32px 20px;
+        padding: 24px 16px;
     }
     
     .contact-icon {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
     }
     
     .contact-icon i {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .footer-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .about-highlights {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-header::after {
+        bottom: -26px;
+    }
+    
+    section {
+        padding: 31px 0;
+    }
+}
+    
+    .card-1 {
+        animation: slideInUp 0.6s ease-out 0.1s both !important;
+    }
+    
+    .card-2 {
+        animation: slideInUp 0.6s ease-out 0.2s both !important;
+    }
+    
+    .card-3 {
+        animation: slideInUp 0.6s ease-out 0.3s both !important;
+    }
+    
+    .card-4 {
+        animation: slideInUp 0.6s ease-out 0.4s both !important;
+    }
+    
+    .stat {
+        animation: fadeInScale 0.5s ease-out backwards;
+    }
+    
+    .stat:nth-child(1) {
+        animation-delay: 0.2s;
+    }
+    
+    .stat:nth-child(2) {
+        animation-delay: 0.4s;
+    }
+    
+    .stat:nth-child(3) {
+        animation-delay: 0.6s;
+    }
+    
+    .btn-large {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        animation: pulse-shadow 2s ease-in-out infinite;
+    }
+    
+    .service-card,
+    .pricing-card,
+    .booking-form-container,
+    .contact-form-container {
+        padding: 20px;
+    }
+    
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .contact-card {
+        padding: 24px 16px;
+    }
+    
+    .contact-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .contact-icon i {
+        font-size: 1.3rem;
     }
 }
 
