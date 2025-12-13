@@ -285,6 +285,7 @@ p {
     font-size: 3.5rem;
     margin-bottom: 24px;
     line-height: 1.1;
+    animation: heroTitleSlideIn 0.8s ease-out;
 }
 
 .hero-title .accent {
@@ -303,21 +304,68 @@ p {
     }
 }
 
+@keyframes heroTitleSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroDescriptionFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroButtonSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes heroStatsFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .hero-description {
     font-size: 1.125rem;
     margin-bottom: 32px;
     max-width: 600px;
+    animation: heroDescriptionFadeIn 0.8s ease-out 0.2s both;
 }
 
 .hero-buttons {
     display: flex;
     gap: 16px;
     margin-bottom: 48px;
+    animation: heroButtonSlideUp 0.8s ease-out 0.4s both;
 }
 
 .hero-stats {
     display: flex;
     gap: 40px;
+    animation: heroStatsFadeIn 0.8s ease-out 0.6s both;
 }
 
 .stat {
@@ -421,7 +469,7 @@ p {
 }
 
 .orb-text {
-    font-size: 0.875rem;
+    font-size: 0.65rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -566,56 +614,58 @@ p {
     font-weight: 600;
 }
 
+
+
+@keyframes cardFloat1 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(15px, -10px) rotate(1.5deg); }
+    50% { transform: translate(0, -15px) rotate(0deg); }
+    75% { transform: translate(-15px, -10px) rotate(-1.5deg); }
+}
+
+@keyframes cardFloat2 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-15px, -10px) rotate(-1.5deg); }
+    50% { transform: translate(0, -15px) rotate(0deg); }
+    75% { transform: translate(15px, -10px) rotate(1.5deg); }
+}
+
+@keyframes cardFloat3 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(15px, 10px) rotate(1.5deg); }
+    50% { transform: translate(0, 15px) rotate(0deg); }
+    75% { transform: translate(-15px, 10px) rotate(-1.5deg); }
+}
+
+@keyframes cardFloat4 {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-15px, 10px) rotate(-1.5deg); }
+    50% { transform: translate(0, 15px) rotate(0deg); }
+    75% { transform: translate(15px, 10px) rotate(1.5deg); }
+}
+
 .card-1 {
     top: 10%;
     left: 15%;
-    animation: cardFloat1 6s ease-in-out infinite;
+    animation: slideInUp 0.6s ease-out 0.1s both, cardFloat1 10s linear 0.6s infinite;
 }
 
 .card-2 {
     top: 10%;
     right: 15%;
-    animation: cardFloat2 6s ease-in-out infinite;
+    animation: slideInUp 0.6s ease-out 0.2s both, cardFloat2 10s linear 0.7s infinite;
 }
 
 .card-3 {
     bottom: 10%;
     left: 15%;
-    animation: cardFloat3 6s ease-in-out infinite;
+    animation: slideInUp 0.6s ease-out 0.3s both, cardFloat3 10s linear 0.8s infinite;
 }
 
 .card-4 {
     bottom: 10%;
     right: 15%;
-    animation: cardFloat4 6s ease-in-out infinite;
-}
-
-@keyframes cardFloat1 {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(10px, -10px) rotate(2deg); }
-    50% { transform: translate(0, -20px) rotate(0deg); }
-    75% { transform: translate(-10px, -10px) rotate(-2deg); }
-}
-
-@keyframes cardFloat2 {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(-10px, -10px) rotate(-2deg); }
-    50% { transform: translate(0, -20px) rotate(0deg); }
-    75% { transform: translate(10px, -10px) rotate(2deg); }
-}
-
-@keyframes cardFloat3 {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(10px, 10px) rotate(2deg); }
-    50% { transform: translate(0, 20px) rotate(0deg); }
-    75% { transform: translate(-10px, 10px) rotate(-2deg); }
-}
-
-@keyframes cardFloat4 {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    25% { transform: translate(-10px, 10px) rotate(-2deg); }
-    50% { transform: translate(0, 20px) rotate(0deg); }
-    75% { transform: translate(10px, 10px) rotate(2deg); }
+    animation: slideInUp 0.6s ease-out 0.4s both, cardFloat4 10s linear 0.9s infinite;
 }
 
 /* Old hero visual styles kept for backward compatibility */
@@ -1964,8 +2014,11 @@ section {
         height: auto;
         width: 100%;
         overflow: visible;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
+        flex-wrap: wrap;
     }
     
     .central-orb {
@@ -1997,7 +2050,6 @@ section {
         display: inline-block;
         margin: 8px !important;
         padding: 20px;
-        animation: none !important;
         background: white;
         border-radius: 14px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -2025,13 +2077,6 @@ section {
         font-size: 0.85rem;
         color: var(--text-primary);
         font-weight: 600;
-    }
-    
-    .card-1,
-    .card-2,
-    .card-3,
-    .card-4 {
-        animation: none !important;
     }
     
     .testimonials-grid {
@@ -2143,8 +2188,11 @@ section {
         height: auto;
         width: 100%;
         overflow: visible;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
+        flex-wrap: wrap;
         margin-top: 20px;
         min-height: 280px;
     }
@@ -2211,22 +2259,6 @@ section {
         font-weight: 600;
     }
     
-    .card-1 {
-        animation: slideInUp 0.6s ease-out 0.1s both !important;
-    }
-    
-    .card-2 {
-        animation: slideInUp 0.6s ease-out 0.2s both !important;
-    }
-    
-    .card-3 {
-        animation: slideInUp 0.6s ease-out 0.3s both !important;
-    }
-    
-    .card-4 {
-        animation: slideInUp 0.6s ease-out 0.4s both !important;
-    }
-    
     .btn-large {
         padding: 12px 20px;
         font-size: 0.9rem;
@@ -2284,19 +2316,21 @@ section {
 }
     
     .card-1 {
-        animation: slideInUp 0.6s ease-out 0.1s both !important;
+        animation: slideInUp 0.6s ease-out 0.1s both, cardFloat1 10s linear 0.6s infinite !important;
     }
     
     .card-2 {
-        animation: slideInUp 0.6s ease-out 0.2s both !important;
+        animation: slideInUp 0.6s ease-out 0.2s both, cardFloat2 10s linear 0.7s infinite !important;
     }
     
     .card-3 {
-        animation: slideInUp 0.6s ease-out 0.3s both !important;
+        animation: slideInUp 0.6s ease-out 0.3s both, cardFloat3 10s linear 0.8s infinite !important;
     }
     
     .card-4 {
-        animation: slideInUp 0.6s ease-out 0.4s both !important;
+        animation: slideInUp 0.6s ease-out 0.4s both, cardFloat4 10s linear 0.9s infinite !important;
+    }
+        animation: slideInUp 0.6s ease-out 0.4s both, cardFloat4 6s ease-in-out 0.9s infinite !important;
     }
     
     .stat {
@@ -2345,7 +2379,6 @@ section {
     .contact-icon i {
         font-size: 1.3rem;
     }
-}
 
 /* ============================
    FAQ Section
