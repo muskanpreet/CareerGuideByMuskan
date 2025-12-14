@@ -70,6 +70,12 @@ function blockTimeSlot(date, time, reason = 'Unavailable') {
 
 function saveBooking(bookingData) {
     try {
+        // Try to use saveBookingHybrid if available (for Firebase sync)
+        if (typeof saveBookingHybrid === 'function') {
+            return saveBookingHybrid(bookingData);
+        }
+        
+        // Fallback: save to localStorage only
         const booking = {
             id: generateBookingId(),
             ...bookingData,
