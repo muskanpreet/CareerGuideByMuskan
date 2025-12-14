@@ -297,9 +297,6 @@ p {
         background: linear-gradient(135deg, #0f172a 0%, #1a1f2e 50%, #1e293b 100%);
     }
 }
-    animation: gradientShift 15s ease infinite;
-    will-change: transform;
-}
 
 @keyframes gradientShift {
     0%, 100% { background-position: 0% 50%; }
@@ -1869,7 +1866,7 @@ section {
    Footer
 ============================ */
 .footer {
-    background: var(--text-primary);
+    background: #1f2937;
     color: white;
     padding: 60px 0 24px;
 }
@@ -2288,10 +2285,6 @@ section {
         grid-template-columns: 1fr;
     }
     
-    .faq-container {
-        grid-template-columns: 1fr;
-    }
-    
     section {
         padding: 60px 0;
     }
@@ -2498,24 +2491,9 @@ section {
         grid-template-columns: 1fr;
     }
     
-    .section-header::after {
-        bottom: -26px;
-    }
-    
-    .section-title {
-        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-    
-    section {
-        padding: 31px 0;
-    }
-}
-    
-    .card-1 {
-        animation: slideInUp 0.6s ease-out 0.1s both, cardFloat1 10s linear 0.6s infinite !important;
+    .faq-container {
+        display: flex !important;
+        flex-direction: column !important;
     }
     
     .card-2 {
@@ -2577,6 +2555,7 @@ section {
         font-size: 1.3rem;
     }
 
+}
 /* ============================
    FAQ Section
 ============================ */
