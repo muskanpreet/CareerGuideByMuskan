@@ -55,6 +55,14 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 table {
@@ -120,19 +128,10 @@ th {
     color: white;
 }
 
-.btn-small:hover {
-    opacity: 0.8;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 24px;
-    color: #64748b;
-}
-
-/* Block Slot Form */
-.block-slot-form {
-    background: white;
+    .btn-refresh {
+        background: #2563eb;
+        color: white;
+    }
     padding: 24px;
     border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -314,5 +313,216 @@ th {
     .status-badge {
         font-size: 0.75rem;
         padding: 3px 8px;
+    }
+}
+
+/* ============================
+   Dark Mode Support
+============================ */
+@media (prefers-color-scheme: dark) {
+    .admin-container {
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        color: #e2e8f0;
+        border: 1px solid #334155;
+    }
+
+    .stat-card {
+        background: #1e293b;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .stat-card h3 {
+        color: #cbd5e1;
+    }
+
+    .stat-card .value {
+        color: #60a5fa;
+    }
+
+    .bookings-table {
+        background: #1e293b;
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .table-header {
+        background: #1e293b;
+        border-bottom-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .table-header h2 {
+        color: #e2e8f0;
+    }
+
+    table {
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    th {
+        background: #0f172a;
+        color: #cbd5e1;
+        border-bottom-color: #334155;
+    }
+
+    td {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-bottom-color: #334155;
+    }
+
+    tr:hover td {
+        background: #334155;
+    }
+
+    .status-confirmed {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+    }
+
+    .status-blocked {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fcd34d;
+    }
+
+    .block-slot-form {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .block-slot-form h3 {
+        color: #e2e8f0;
+    }
+
+    .form-group label {
+        color: #cbd5e1;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #60a5fa;
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    .btn-block {
+        background: #2563eb;
+        color: white;
+        border: none;
+    }
+
+    .btn-block:hover {
+        background: #1d4ed8;
+    }
+
+    .empty-state {
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        color: #475569;
+    }
+
+    /* Login screen dark mode */
+    #loginScreen {
+        background: #0f172a;
+    }
+
+    .login-container {
+        background: #1e293b;
+        border-color: #334155;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .login-container h2 {
+        color: #e2e8f0;
+    }
+
+    .form-group input {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    .login-btn {
+        background: #2563eb;
+        color: white;
+    }
+
+    .login-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        color: #fca5a5;
+        border-color: #dc2626;
+    }
+
+    .btn-export {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-export:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+    }
+
+    .btn-unblock {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-unblock:hover {
+        background: #059669;
+    }
+
+    .btn-refresh {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-refresh:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-small:hover {
+        opacity: 1;
     }
 }

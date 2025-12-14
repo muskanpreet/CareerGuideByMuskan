@@ -11,7 +11,7 @@ function initDatabase() {
     }
 }
 
-// Get all bookings - fallback function
+// Get all bookings - from localStorage (synced with Firebase)
 function getAllBookings() {
     try {
         const bookings = localStorage.getItem(BOOKINGS_KEY);
@@ -19,6 +19,15 @@ function getAllBookings() {
     } catch (error) {
         console.error('Error getting bookings:', error);
         return [];
+    }
+}
+
+// Get all bookings from Firebase with callback (for admin dashboard)
+function getAllBookingsFromFirebaseSync(callback) {
+    if (typeof getAllBookingsFromFirebase === 'function') {
+        getAllBookingsFromFirebase(callback);
+    } else {
+        callback(getAllBookings());
     }
 }
 
@@ -70,12 +79,14 @@ function blockTimeSlot(date, time, reason = 'Unavailable') {
 
 function saveBooking(bookingData) {
     try {
-        // Try to use saveBookingHybrid if available (for Firebase sync)
+        // Always use saveBookingHybrid for Firebase sync if available
         if (typeof saveBookingHybrid === 'function') {
+            console.log('saveBooking: Using saveBookingHybrid for Firebase sync');
             return saveBookingHybrid(bookingData);
         }
         
         // Fallback: save to localStorage only
+        console.warn('saveBooking: saveBookingHybrid not available, using localStorage only');
         const booking = {
             id: generateBookingId(),
             ...bookingData,
@@ -113,9 +124,18 @@ function isSlotBlocked(date, time) {
 
 function deleteBooking(id) {
     try {
+        // Delete from localStorage
         const bookings = getAllBookings();
         const filtered = bookings.filter(booking => booking.id !== id);
         localStorage.setItem(BOOKINGS_KEY, JSON.stringify(filtered));
+        console.log('deleteBooking: Deleted from localStorage:', id);
+        
+        // Delete from Firebase if available
+        if (typeof deleteBookingFromFirebase === 'function') {
+            deleteBookingFromFirebase(id);
+            console.log('deleteBooking: Deleted from Firebase:', id);
+        }
+        
         return true;
     } catch (error) {
         console.error('Error deleting booking:', error);
@@ -169,7 +189,9 @@ function getBookingStats() {
 
 function isSlotAvailable(date, time) {
     const bookings = getBookingsByDate(date);
-    return !bookings.some(booking => booking.time === time);
+    const isAvailable = !bookings.some(booking => booking.time === time);
+    console.log('isSlotAvailable:', { date, time, available: isAvailable, bookedCount: bookings.length });
+    return isAvailable;
 }
 
 initDatabase();

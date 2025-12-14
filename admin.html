@@ -180,9 +180,14 @@
         <div class="bookings-table">
             <div class="table-header">
                 <h2>All Bookings</h2>
-                <button class="btn-small btn-export" onclick="exportBookings()">
-                    <i class="fas fa-download"></i> Export Data
-                </button>
+                <div class="table-actions">
+                    <button class="btn-small btn-refresh" onclick="loadDashboard()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button class="btn-small btn-export" onclick="exportBookings()">
+                        <i class="fas fa-download"></i> Export Data
+                    </button>
+                </div>
             </div>
             <div id="tableContainer"></div>
         </div>
@@ -192,6 +197,36 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Firebase Configuration and Initialization -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAalGBn2TEtQx4deucgAoHmxqCjaNIl8ZU",
+            authDomain: "careerguidemuskan.firebaseapp.com",
+            databaseURL: "https://careerguidemuskan-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "careerguidemuskan",
+            storageBucket: "careerguidemuskan.firebasestorage.app",
+            messagingSenderId: "98212375936",
+            appId: "1:98212375936:web:9be1b92dd76300adbde565",
+            measurementId: "G-FLWSHJ5RSP"
+        };
+
+        if (typeof firebase !== 'undefined') {
+            try {
+                // Initialize Firebase
+                if (firebase.apps.length === 0) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                
+                // Initialize Database
+                const db = firebase.database();
+                window.firebaseDatabase = db; // Make it globally available
+                console.log('Firebase initialized in admin.html');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+            }
+        }
+    </script>
     
     <!-- Load database files -->
     <script src="database.js"></script>
@@ -246,12 +281,12 @@
         // Load and display bookings
         function loadDashboard() {
             // Debug: Check if Firebase is initialized
-            console.log('Firebase initialized:', isFirebaseInitialized);
-            console.log('Loading bookings...');
+            console.log('📊 DASHBOARD LOAD - Firebase initialized:', isFirebaseInitialized);
+            console.log('   saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
             
             // Fetch bookings from Firebase
             getAllBookingsFromFirebase(function(bookings) {
-                console.log('Bookings received:', bookings);
+                console.log('📊 DASHBOARD LOAD - Bookings received from Firebase:', bookings.length);
                 
                 const stats = {
                     total: bookings.length,
@@ -262,6 +297,8 @@
                         return sum + (b.sessionType === 'blocked' ? 0 : amount);
                     }, 0)
                 };
+
+                console.log('📊 DASHBOARD LOAD - Stats calculated:', stats);
 
                 // Update stats
                 document.getElementById('totalBookings').textContent = stats.total;
@@ -279,6 +316,7 @@
                             <p>No bookings yet</p>
                         </div>
                     `;
+                    console.log('📊 DASHBOARD LOAD - No bookings to display');
                     return;
                 }
 
@@ -325,8 +363,8 @@
                     </table>
                 `;
                 tableContainer.innerHTML = tableHTML;
+                console.log('📊 DASHBOARD LOAD - Table rendered with', bookings.length, 'bookings');
             });
-            tableContainer.innerHTML = tableHTML;
         }
 
         function formatDate(dateStr) {
@@ -383,11 +421,17 @@
             blockDateInput.setAttribute('min', today);
         });
 
-        // Load dashboard on page load
-        loadDashboard();
+        // Load dashboard on page load with delay to ensure Firebase init
+        setTimeout(function() {
+            console.log('Admin: Initial dashboard load after Firebase init');
+            loadDashboard();
+        }, 500);
 
-        // Refresh every 30 seconds
-        setInterval(loadDashboard, 30000);
+        // Auto-refresh every 10 seconds
+        setInterval(function() {
+            console.log('Admin: Auto-refresh interval triggered');
+            loadDashboard();
+        }, 10000);
     </script>
 </body>
 </html>

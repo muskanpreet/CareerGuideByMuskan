@@ -165,11 +165,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Save booking to database
-        console.log('Saving booking with data:', formData);
+        console.log('📝 BOOKING SUBMISSION START');
+        console.log('Form data:', formData);
         console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
+        console.log('saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
         
         const booking = saveBooking(formData);
-        console.log('Booking saved:', booking);
+        console.log('Booking saved result:', booking);
         
         if (booking) {
             // Show success message with booking ID
@@ -184,9 +186,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            console.log('📝 BOOKING SUBMISSION END - SUCCESS');
         } else {
-            console.error('Failed to save booking');
+            console.error('❌ Failed to save booking');
             showNotification('Error processing booking. Please try again.', 'error');
+            console.log('📝 BOOKING SUBMISSION END - FAILED');
         }
     });
 });
