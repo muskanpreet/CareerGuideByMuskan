@@ -1610,13 +1610,15 @@ section {
 }
 
 .contact-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 24px;
     margin-bottom: 60px;
 }
 
 .contact-card {
+    flex: 1;
+    min-width: 200px;
     background: var(--bg-white);
     padding: 40px 24px;
     border-radius: 16px;
@@ -2116,7 +2118,6 @@ section {
     }
     
     .contact-grid {
-        grid-template-columns: repeat(2, 1fr);
         gap: 16px;
     }
     
@@ -2125,6 +2126,10 @@ section {
     }
     
     .about-highlights {
+        grid-template-columns: 1fr;
+    }
+    
+    .faq-container {
         grid-template-columns: 1fr;
     }
     
@@ -2301,12 +2306,12 @@ section {
     }
     
     .contact-grid {
-        grid-template-columns: 1fr;
         gap: 12px;
     }
     
     .contact-card {
         padding: 24px 16px;
+        flex: 1 1 calc(50% - 6px);
     }
     
     .contact-icon {
@@ -2415,8 +2420,11 @@ section {
 }
 
 .faq-container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
 }
 
 .faq-item {
