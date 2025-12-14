@@ -165,7 +165,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Save booking to database
+        console.log('Saving booking with data:', formData);
+        console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
+        
         const booking = saveBooking(formData);
+        console.log('Booking saved:', booking);
         
         if (booking) {
             // Show success message with booking ID
@@ -173,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Log booking stats
             const stats = getBookingStats();
+            console.log('Booking stats:', stats);
             
             // Reset form
             bookingForm.reset();
@@ -180,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
+            console.error('Failed to save booking');
             showNotification('Error processing booking. Please try again.', 'error');
         }
     });
@@ -260,6 +266,7 @@ function showNotification(message, type = 'info') {
             top: 100px;
             right: 24px;
             background: white;
+            color: #1f2937;
             padding: 16px 24px;
             border-radius: 8px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
@@ -270,6 +277,14 @@ function showNotification(message, type = 'info') {
             max-width: 400px;
             animation: slideIn 0.3s ease-out;
             border-left: 4px solid;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .notification {
+                background: #1e293b;
+                color: #e2e8f0;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            }
         }
         
         .notification-success {
@@ -324,6 +339,16 @@ function showNotification(message, type = 'info') {
         
         .notification-close:hover {
             color: #0f172a;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .notification-close {
+                color: #94a3b8;
+            }
+            
+            .notification-close:hover {
+                color: #e2e8f0;
+            }
         }
         
         @keyframes slideIn {

@@ -110,6 +110,7 @@
 
     <!-- Firebase Analytics -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
     <script>
         const firebaseConfig = {
@@ -124,8 +125,20 @@
         };
 
         if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
-            firebase.analytics();
+            try {
+                // Initialize Firebase
+                firebase.initializeApp(firebaseConfig);
+                
+                // Initialize Analytics
+                firebase.analytics();
+                
+                // Initialize Database
+                const db = firebase.database();
+                window.firebaseDatabase = db; // Make it globally available
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+            }
         }
     </script>
 </head>
@@ -753,8 +766,7 @@
     </button>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Already loaded in <head> -->
     
     <!-- Load database files -->
     <script src="database.js"></script>

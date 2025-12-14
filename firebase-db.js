@@ -1,31 +1,32 @@
 // ============================
 // Firebase Configuration
 // ============================
-
-const firebaseConfig = {
-    apiKey: "AIzaSyAalGBn2TEtQx4deucgAoHmxqCjaNIl8ZU",
-    authDomain: "careerguidemuskan.firebaseapp.com",
-    databaseURL: "https://careerguidemuskan-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "careerguidemuskan",
-    storageBucket: "careerguidemuskan.firebasestorage.app",
-    messagingSenderId: "98212375936",
-    appId: "1:98212375936:web:9be1b92dd76300adbde565",
-    measurementId: "G-FLWSHJ5RSP"
-};
+// Note: firebaseConfig is already defined in index.html
 
 let db;
 let isFirebaseInitialized = false;
 
+// Make isFirebaseInitialized globally accessible
+window.isFirebaseInitialized = isFirebaseInitialized;
+
 function initFirebase() {
     try {
         if (typeof firebase !== 'undefined') {
-            firebase.initializeApp(firebaseConfig);
+            // Check if already initialized
+            if (firebase.apps.length === 0) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
             db = firebase.database();
             isFirebaseInitialized = true;
+            window.isFirebaseInitialized = true; // Make globally accessible
+            console.log('Firebase Database initialized');
             syncLocalToFirebase();
         }
     } catch (error) {
+        console.error('Firebase initialization error:', error);
         isFirebaseInitialized = false;
+        window.isFirebaseInitialized = false;
     }
 }
 
@@ -88,6 +89,12 @@ function syncLocalToFirebase() {
             }
         }
     });
+}
+
+function generateBookingId() {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `BKG-${timestamp}-${random}`;
 }
 
 function saveBookingLocal(bookingData) {
