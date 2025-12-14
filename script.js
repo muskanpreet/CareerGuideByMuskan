@@ -80,101 +80,109 @@ scrollTopBtn.addEventListener('click', () => {
 // ============================
 // Booking Form Handling
 // ============================
-const bookingForm = document.getElementById('bookingForm');
-
-// Set minimum date to today
-const dateInput = document.getElementById('date');
-const today = new Date().toISOString().split('T')[0];
-dateInput.setAttribute('min', today);
-
-// Update available time slots when date changes
-dateInput.addEventListener('change', function() {
-    updateAvailableTimeSlots(this.value);
-});
-
-// Function to update time slot availability
-function updateAvailableTimeSlots(selectedDate) {
-    const timeSelect = document.getElementById('time');
-    const options = timeSelect.querySelectorAll('option');
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingForm = document.getElementById('bookingForm');
     
-    options.forEach(option => {
-        if (option.value === '') return; // Skip the placeholder option
+    if (!bookingForm) {
+        console.error('Booking form not found');
+        return;
+    }
+
+    // Set minimum date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    // Update available time slots when date changes
+    dateInput.addEventListener('change', function() {
+        updateAvailableTimeSlots(this.value);
+    });
+
+    // Function to update time slot availability
+    function updateAvailableTimeSlots(selectedDate) {
+        const timeSelect = document.getElementById('time');
+        const options = timeSelect.querySelectorAll('option');
         
-        const timeValue = option.value;
-        const isAvailable = isSlotAvailable(selectedDate, timeValue);
+        options.forEach(option => {
+            if (option.value === '') return; // Skip the placeholder option
+            
+            const timeValue = option.value;
+            const isAvailable = isSlotAvailable(selectedDate, timeValue);
+            
+            if (!isAvailable) {
+                option.disabled = true;
+                option.style.color = '#cbd5e1';
+                option.style.backgroundColor = '#f1f5f9';
+                option.textContent = option.textContent.replace(' (Booked)', '') + ' (Booked)';
+            } else {
+                option.disabled = false;
+                option.style.color = '';
+                option.style.backgroundColor = '';
+                option.textContent = option.textContent.replace(' (Booked)', '');
+            }
+        });
+    }
+
+    bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        console.log('Form submitted'); // Debug log
         
-        if (!isAvailable) {
-            option.disabled = true;
-            option.style.color = '#cbd5e1';
-            option.style.backgroundColor = '#f1f5f9';
-            option.textContent = option.textContent.replace(' (Booked)', '') + ' (Booked)';
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            sessionType: document.getElementById('sessionType').value,
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value,
+            message: document.getElementById('message').value
+        };
+        
+        // Validate form
+        if (!formData.name || !formData.email || !formData.phone || !formData.sessionType || !formData.date || !formData.time || !formData.message) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            showNotification('Please enter a valid email address', 'error');
+            return;
+        }
+        
+        // Phone validation (basic)
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        if (cleanPhone.length < 10) {
+            showNotification('Please enter a valid phone number', 'error');
+            return;
+        }
+        
+        // Check if slot is available
+        if (!isSlotAvailable(formData.date, formData.time)) {
+            showNotification('This time slot is already booked. Please choose another time.', 'error');
+            return;
+        }
+        
+        // Save booking to database
+        const booking = saveBooking(formData);
+        
+        if (booking) {
+            // Show success message with booking ID
+            showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
+            
+            // Log booking stats
+            const stats = getBookingStats();
+            
+            // Reset form
+            bookingForm.reset();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            option.disabled = false;
-            option.style.color = '';
-            option.style.backgroundColor = '';
-            option.textContent = option.textContent.replace(' (Booked)', '');
+            showNotification('Error processing booking. Please try again.', 'error');
         }
     });
-}
-
-bookingForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    // Get form data
-    const formData = {
-        name: document.getElementById('name').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        sessionType: document.getElementById('sessionType').value,
-        date: document.getElementById('date').value,
-        time: document.getElementById('time').value,
-        message: document.getElementById('message').value
-    };
-    
-    // Validate form
-    if (!formData.name || !formData.email || !formData.phone || !formData.sessionType || !formData.date || !formData.time || !formData.message) {
-        showNotification('Please fill in all fields', 'error');
-        return;
-    }
-    
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-        showNotification('Please enter a valid email address', 'error');
-        return;
-    }
-    
-    // Phone validation (basic)
-    const cleanPhone = formData.phone.replace(/\D/g, '');
-    if (cleanPhone.length < 10) {
-        showNotification('Please enter a valid phone number', 'error');
-        return;
-    }
-    
-    // Check if slot is available
-    if (!isSlotAvailable(formData.date, formData.time)) {
-        showNotification('This time slot is already booked. Please choose another time.', 'error');
-        return;
-    }
-    
-    // Save booking to database
-    const booking = saveBooking(formData);
-    
-    if (booking) {
-        // Show success message with booking ID
-        showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
-        
-        // Log booking stats
-        const stats = getBookingStats();
-        
-        // Reset form
-        bookingForm.reset();
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        showNotification('Error processing booking. Please try again.', 'error');
-    }
 });
 
 // ============================

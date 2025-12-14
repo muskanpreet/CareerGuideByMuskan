@@ -11,6 +11,17 @@ function initDatabase() {
     }
 }
 
+// Get all bookings - fallback function
+function getAllBookings() {
+    try {
+        const bookings = localStorage.getItem(BOOKINGS_KEY);
+        return bookings ? JSON.parse(bookings) : [];
+    } catch (error) {
+        console.error('Error getting bookings:', error);
+        return [];
+    }
+}
+
 function getBookingById(id) {
     const bookings = getAllBookings();
     return bookings.find(booking => booking.id === id);
@@ -57,6 +68,26 @@ function blockTimeSlot(date, time, reason = 'Unavailable') {
     return saveBooking(blockData);
 }
 
+function saveBooking(bookingData) {
+    try {
+        const booking = {
+            id: generateBookingId(),
+            ...bookingData,
+            status: 'confirmed',
+            createdAt: new Date().toISOString()
+        };
+        
+        const bookings = getAllBookings();
+        bookings.push(booking);
+        localStorage.setItem(BOOKINGS_KEY, JSON.stringify(bookings));
+        
+        return booking;
+    } catch (error) {
+        console.error('Error saving booking:', error);
+        return null;
+    }
+}
+
 function unblockTimeSlot(date, time) {
     const bookings = getAllBookings();
     const blocked = bookings.find(b => 
@@ -72,6 +103,18 @@ function unblockTimeSlot(date, time) {
 
 function isSlotBlocked(date, time) {
     return false;
+}
+
+function deleteBooking(id) {
+    try {
+        const bookings = getAllBookings();
+        const filtered = bookings.filter(booking => booking.id !== id);
+        localStorage.setItem(BOOKINGS_KEY, JSON.stringify(filtered));
+        return true;
+    } catch (error) {
+        console.error('Error deleting booking:', error);
+        return false;
+    }
 }
 
 function generateBookingId() {
