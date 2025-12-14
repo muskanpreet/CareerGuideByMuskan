@@ -220,8 +220,8 @@
                 document.getElementById('adminContent').style.display = 'block';
                 // Store session
                 sessionStorage.setItem('adminLoggedIn', 'true');
-                // Load dashboard
-                loadDashboard();
+                // Load dashboard with delay to ensure Firebase is initialized
+                setTimeout(loadDashboard, 500);
             } else {
                 // Show error
                 errorMessage.style.display = 'block';
@@ -238,77 +238,94 @@
             if (sessionStorage.getItem('adminLoggedIn') === 'true') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
-                loadDashboard();
+                // Give Firebase time to initialize
+                setTimeout(loadDashboard, 500);
             }
         });
 
         // Load and display bookings
         function loadDashboard() {
-            const stats = getBookingStats();
-            const bookings = getAllBookings();
-
-            // Update stats
-            document.getElementById('totalBookings').textContent = stats.total;
-            document.getElementById('quickSessions').textContent = stats.quickSessions;
-            document.getElementById('detailedSessions').textContent = stats.detailedSessions;
-            document.getElementById('totalRevenue').textContent = `₹${stats.totalRevenue.toLocaleString()}`;
-
-            // Display bookings table
-            const tableContainer = document.getElementById('tableContainer');
+            // Debug: Check if Firebase is initialized
+            console.log('Firebase initialized:', isFirebaseInitialized);
+            console.log('Loading bookings...');
             
-            if (bookings.length === 0) {
-                tableContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
-                        <p>No bookings yet</p>
-                    </div>
-                `;
-                return;
-            }
+            // Fetch bookings from Firebase
+            getAllBookingsFromFirebase(function(bookings) {
+                console.log('Bookings received:', bookings);
+                
+                const stats = {
+                    total: bookings.length,
+                    quickSessions: bookings.filter(b => b.sessionType === '30min').length,
+                    detailedSessions: bookings.filter(b => b.sessionType === '60min').length,
+                    totalRevenue: bookings.reduce((sum, b) => {
+                        const amount = b.sessionType === '30min' ? 199 : 299;
+                        return sum + (b.sessionType === 'blocked' ? 0 : amount);
+                    }, 0)
+                };
 
-            const tableHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Booking ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Session</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${bookings.reverse().map(booking => `
+                // Update stats
+                document.getElementById('totalBookings').textContent = stats.total;
+                document.getElementById('quickSessions').textContent = stats.quickSessions;
+                document.getElementById('detailedSessions').textContent = stats.detailedSessions;
+                document.getElementById('totalRevenue').textContent = `₹${stats.totalRevenue.toLocaleString()}`;
+
+                // Display bookings table
+                const tableContainer = document.getElementById('tableContainer');
+                
+                if (bookings.length === 0) {
+                    tableContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 16px; opacity: 0.3;"></i>
+                            <p>No bookings yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const tableHTML = `
+                    <table>
+                        <thead>
                             <tr>
-                                <td><strong>${booking.id}</strong></td>
-                                <td>${booking.name}</td>
-                                <td>${booking.email}</td>
-                                <td>${booking.phone}</td>
-                                <td>${booking.sessionType === '30min' ? '30 min (₹199)' : booking.sessionType === '60min' ? '60 min (₹299)' : '⛔ Blocked'}</td>
-                                <td>${formatDate(booking.date)}</td>
-                                <td>${booking.time}</td>
-                                <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
-                                <td>
-                                    <div class="action-buttons">
-                                        ${booking.sessionType === 'blocked' 
-                                            ? `<button class="btn-small btn-unblock" onclick="handleUnblock('${booking.id}', '${booking.date}', '${booking.time}')">
-                                                <i class="fas fa-unlock"></i> Unblock
-                                              </button>`
-                                            : `<button class="btn-small btn-delete" onclick="removeBooking('${booking.id}')">
-                                                <i class="fas fa-trash"></i> Delete
-                                              </button>`}
-                                    </div>
-                                </td>
+                                <th>Booking ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Session</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            
+                        </thead>
+                        <tbody>
+                            ${bookings.reverse().map(booking => `
+                                <tr>
+                                    <td><strong>${booking.id}</strong></td>
+                                    <td>${booking.name}</td>
+                                    <td>${booking.email}</td>
+                                    <td>${booking.phone}</td>
+                                    <td>${booking.sessionType === '30min' ? '30 min (₹199)' : booking.sessionType === '60min' ? '60 min (₹299)' : '⛔ Blocked'}</td>
+                                    <td>${formatDate(booking.date)}</td>
+                                    <td>${booking.time}</td>
+                                    <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            ${booking.sessionType === 'blocked' 
+                                                ? `<button class="btn-small btn-unblock" onclick="handleUnblock('${booking.id}', '${booking.date}', '${booking.time}')">
+                                                    <i class="fas fa-unlock"></i> Unblock
+                                                  </button>`
+                                                : `<button class="btn-small btn-delete" onclick="removeBooking('${booking.id}')">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                  </button>`}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                tableContainer.innerHTML = tableHTML;
+            });
             tableContainer.innerHTML = tableHTML;
         }
 
