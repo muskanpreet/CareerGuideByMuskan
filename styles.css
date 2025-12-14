@@ -191,6 +191,12 @@ p {
     transition: var(--transition);
 }
 
+@media (prefers-color-scheme: dark) {
+    .navbar {
+        background: rgba(30, 41, 59, 0.95);
+    }
+}
+
 .navbar.scrolled {
     box-shadow: var(--shadow-md);
 }
@@ -210,7 +216,19 @@ p {
 }
 
 .logo .accent {
-    color: var(--primary-color);
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (prefers-color-scheme: dark) {
+    .logo .accent {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
 }
 
 .nav-menu {
@@ -235,12 +253,12 @@ p {
     left: 0;
     width: 0;
     height: 2px;
-    background: var(--primary-color);
+    background: var(--gradient-start);
     transition: var(--transition);
 }
 
 .nav-link:hover {
-    color: var(--primary-color);
+    color: var(--gradient-start);
 }
 
 .nav-link:hover::after {
@@ -272,6 +290,13 @@ p {
     background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 50%, #ddd6fe 100%);
     position: relative;
     overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+    .hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1a1f2e 50%, #1e293b 100%);
+    }
+}
     animation: gradientShift 15s ease infinite;
     will-change: transform;
 }
@@ -796,6 +821,12 @@ p {
     color: #00a4ef;
 }
 
+@media (prefers-color-scheme: dark) {
+    .badge-1 i {
+        color: #06f3ff;
+    }
+}
+
 .badge-2 {
     bottom: 20%;
     left: 0;
@@ -803,8 +834,20 @@ p {
     animation-delay: 1s;
 }
 
+@media (prefers-color-scheme: dark) {
+    .badge-2 {
+        background: linear-gradient(135deg, #1a3a52, #2d3a1a);
+    }
+}
+
 .badge-2 i {
     color: #f59e0b;
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge-2 i {
+        color: #fbbf24;
+    }
 }
 
 .badge-3 {
@@ -814,8 +857,20 @@ p {
     animation-delay: 2s;
 }
 
+@media (prefers-color-scheme: dark) {
+    .badge-3 {
+        background: linear-gradient(135deg, #1a3a52, #2d1a3a);
+    }
+}
+
 .badge-3 i {
     color: #8b5cf6;
+}
+
+@media (prefers-color-scheme: dark) {
+    .badge-3 i {
+        color: #d8b4fe;
+    }
 }
 
 @keyframes badgeFloat {
@@ -1041,6 +1096,13 @@ section {
     margin-bottom: 32px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .about-intro {
+        background: linear-gradient(135deg, #1a3a52, #1e2d42);
+        border-left-color: var(--gradient-start);
+    }
+}
+
 .highlight-text {
     background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
     -webkit-background-clip: text;
@@ -1134,8 +1196,14 @@ section {
     background: linear-gradient(135deg, #dbeafe, #bfdbfe);
     padding: 24px 24px 24px 60px;
     border-radius: 12px;
-    margin: 80px 0 0 0;
+    margin: 54px 0 0 0;
     font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+    .about-mission {
+        background: linear-gradient(135deg, #1a3a52, #1e2d42);
+    }
 }
 
 .about-mission i {
@@ -1147,10 +1215,23 @@ section {
     opacity: 0.3;
 }
 
+@media (prefers-color-scheme: dark) {
+    .about-mission i {
+        color: #e0f7ff;
+        opacity: 0.2;
+    }
+}
+
 .about-mission p {
     color: #1e40af;
     margin: 0;
     line-height: 1.7;
+}
+
+@media (prefers-color-scheme: dark) {
+    .about-mission p {
+        color: #e0f7ff;
+    }
 }
 
 .highlight {
@@ -1231,6 +1312,13 @@ section {
     background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
     position: relative;
     overflow: hidden;
+}
+
+@media (prefers-color-scheme: dark) {
+    .service-card.featured {
+        border-color: var(--gradient-start);
+        background: linear-gradient(135deg, #1a3a52 0%, #1e2d42 100%);
+    }
 }
 
 .service-card.featured::before {
@@ -1348,6 +1436,14 @@ section {
                 linear-gradient(135deg, var(--primary-color), var(--accent-color), var(--primary-color)) border-box;
     background-size: 200% 200%;
     animation: gradientBorder 3s ease infinite;
+}
+
+@media (prefers-color-scheme: dark) {
+    .pricing-card.featured {
+        background: linear-gradient(#1a3a52, #1a3a52) padding-box,
+                    linear-gradient(135deg, var(--gradient-start), var(--gradient-mid), var(--gradient-start)) border-box;
+        background-size: 200% 200%;
+    }
 }
 
 @keyframes gradientBorder {
@@ -1506,6 +1602,13 @@ section {
     font-style: italic;
 }
 
+@media (prefers-color-scheme: dark) {
+    .form-group select option:disabled {
+        color: #64748b;
+        background: #334155;
+    }
+}
+
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
@@ -1556,6 +1659,13 @@ section {
     display: inline-block;
     animation: starPulse 2s ease-in-out infinite;
     text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+@media (prefers-color-scheme: dark) {
+    .rating i {
+        color: #fcd34d;
+        text-shadow: 0 0 10px rgba(252, 211, 77, 0.3);
+    }
 }
 
 .rating i:nth-child(2) { animation-delay: 0.1s; }
@@ -1764,6 +1874,13 @@ section {
     padding: 60px 0 24px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .footer {
+        background: #1a1f2e;
+        color: #e0e7ff;
+    }
+}
+
 .footer-content {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1fr;
@@ -1776,14 +1893,32 @@ section {
     margin-bottom: 16px;
 }
 
+@media (prefers-color-scheme: dark) {
+    .footer-brand h3 {
+        color: #e0f7ff;
+    }
+}
+
 .footer-brand p {
     color: rgba(255, 255, 255, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer-brand p {
+        color: rgba(224, 247, 255, 0.6);
+    }
 }
 
 .footer-links h4 {
     color: white;
     margin-bottom: 16px;
     font-size: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer-links h4 {
+        color: #e0f7ff;
+    }
 }
 
 .footer-links ul {
@@ -1800,8 +1935,20 @@ section {
     transition: var(--transition);
 }
 
+@media (prefers-color-scheme: dark) {
+    .footer-links a {
+        color: rgba(224, 247, 255, 0.6);
+    }
+}
+
 .footer-links a:hover {
     color: var(--accent-color);
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer-links a:hover {
+        color: #06f3ff;
+    }
 }
 
 .footer-bottom {
@@ -1810,9 +1957,21 @@ section {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+@media (prefers-color-scheme: dark) {
+    .footer-bottom {
+        border-top-color: rgba(224, 247, 255, 0.1);
+    }
+}
+
 .footer-bottom p {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.875rem;
+}
+
+@media (prefers-color-scheme: dark) {
+    .footer-bottom p {
+        color: rgba(224, 247, 255, 0.4);
+    }
 }
 
 /* ============================
@@ -2341,6 +2500,13 @@ section {
     
     .section-header::after {
         bottom: -26px;
+    }
+    
+    .section-title {
+        background: linear-gradient(135deg, var(--gradient-start), var(--gradient-mid));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
     
     section {
