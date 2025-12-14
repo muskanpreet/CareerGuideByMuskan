@@ -38,9 +38,9 @@
         --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
         --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
         --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-        --gradient-start: #93c5fd;
-        --gradient-mid: #22d3ee;
-        --gradient-end: #e9d5ff;
+        --gradient-start: #e0f7ff;
+        --gradient-mid: #06f3ff;
+        --gradient-end: #f5e6ff;
     }
 }
 
