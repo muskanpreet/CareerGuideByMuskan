@@ -49,6 +49,28 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+#tableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#tableContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+#tableContainer::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+#tableContainer::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+#tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 .table-header {
     padding: 24px;
     border-bottom: 1px solid #e2e8f0;
@@ -381,6 +403,18 @@ th {
 
     tr:hover td {
         background: #334155;
+    }
+
+    #tableContainer::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+
+    #tableContainer::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+
+    #tableContainer::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
     }
 
     .status-confirmed {

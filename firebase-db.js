@@ -186,7 +186,7 @@ function saveBookingLocal(bookingData) {
         const booking = {
             id: generateBookingId(),
             ...bookingData,
-            createdAt: new Date().toISOString(),
+            timestamp: new Date().toISOString(),
             status: 'confirmed'
         };
         
