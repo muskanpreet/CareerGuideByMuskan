@@ -1,6 +1,20 @@
 // ============================
-// Navigation & Mobile Menu
+// New Year Sale Banner
 // ============================
+function closeBanner() {
+    const banner = document.getElementById('newYearBanner');
+    const navbar = document.getElementById('navbar');
+    if (banner) {
+        banner.style.display = 'none';
+        document.body.style.paddingTop = '0';
+        if (navbar) navbar.classList.add('banner-closed');
+    }
+}
+
+
+// ============================
+// Navigation & Mobile Menu
+// ==============================
 const navbar = document.getElementById('navbar');
 const mobileMenuToggle = document.getElementById('mobileMenuToggle');
 const navMenu = document.getElementById('navMenu');
@@ -80,6 +94,34 @@ scrollTopBtn.addEventListener('click', () => {
 // ============================
 // Booking Form Handling
 // ============================
+
+// Function to update time slot availability (defined globally for access from deleteMyBooking)
+function updateAvailableTimeSlots(selectedDate) {
+    const timeSelect = document.getElementById('time');
+    if (!timeSelect) return;
+    
+    const options = timeSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value === '') return; // Skip the placeholder option
+        
+        const timeValue = option.value;
+        const isAvailable = isSlotAvailable(selectedDate, timeValue);
+        
+        if (!isAvailable) {
+            option.disabled = true;
+            option.style.color = '#cbd5e1';
+            option.style.backgroundColor = '#f1f5f9';
+            option.textContent = option.textContent.replace(' (Booked)', '') + ' (Booked)';
+        } else {
+            option.disabled = false;
+            option.style.color = '';
+            option.style.backgroundColor = '';
+            option.textContent = option.textContent.replace(' (Booked)', '');
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const bookingForm = document.getElementById('bookingForm');
     
@@ -98,30 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updateAvailableTimeSlots(this.value);
     });
 
-    // Function to update time slot availability
-    function updateAvailableTimeSlots(selectedDate) {
-        const timeSelect = document.getElementById('time');
-        const options = timeSelect.querySelectorAll('option');
-        
-        options.forEach(option => {
-            if (option.value === '') return; // Skip the placeholder option
-            
-            const timeValue = option.value;
-            const isAvailable = isSlotAvailable(selectedDate, timeValue);
-            
-            if (!isAvailable) {
-                option.disabled = true;
-                option.style.color = '#cbd5e1';
-                option.style.backgroundColor = '#f1f5f9';
-                option.textContent = option.textContent.replace(' (Booked)', '') + ' (Booked)';
-            } else {
-                option.disabled = false;
-                option.style.color = '';
-                option.style.backgroundColor = '';
-                option.textContent = option.textContent.replace(' (Booked)', '');
-            }
-        });
-    }
+// Continue with booking form DOMContentLoaded
 
     bookingForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -187,13 +206,116 @@ document.addEventListener('DOMContentLoaded', function() {
             // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
             console.log('📝 BOOKING SUBMISSION END - SUCCESS');
+            
+            // Refresh my bookings display
+            displayMyBookings();
         } else {
             console.error('❌ Failed to save booking');
             showNotification('Error processing booking. Please try again.', 'error');
             console.log('📝 BOOKING SUBMISSION END - FAILED');
         }
     });
+    
+    // Load my bookings on page load
+    displayMyBookings();
 });
+
+// ============================
+// My Bookings Functions
+// ============================
+function displayMyBookings() {
+    console.log('displayMyBookings: Loading user bookings...');
+    const myBookingsContainer = document.getElementById('myBookingsContainer');
+    
+    if (!myBookingsContainer) {
+        console.log('displayMyBookings: Container not found');
+        return;
+    }
+    
+    // Get all bookings from localStorage
+    const allBookings = getAllBookings();
+    console.log('displayMyBookings: Found', allBookings.length, 'bookings');
+    
+    if (!allBookings || allBookings.length === 0) {
+        myBookingsContainer.innerHTML = '<p class="no-bookings-text">No bookings yet. Submit a booking above to get started!</p>';
+        return;
+    }
+    
+    // Build HTML for each booking
+    const bookingsHTML = allBookings.map(booking => {
+        const dateObj = new Date(booking.date);
+        const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        const sessionLabel = booking.sessionType === '30min' ? '30-min Session (₹199)' : 
+                           booking.sessionType === '60min' ? '60-min Session (₹299)' : 
+                           'Blocked Slot';
+        
+        return `
+            <div class="booking-card" data-booking-id="${booking.id}">
+                <div class="booking-card-header">
+                    <span class="booking-id">Booking ID: ${booking.id}</span>
+                    <span class="booking-status ${booking.status}">${booking.status}</span>
+                </div>
+                <div class="booking-details">
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Name</span>
+                        ${booking.name}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Session</span>
+                        ${sessionLabel}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Date</span>
+                        ${formattedDate}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Time</span>
+                        ${booking.time}
+                    </div>
+                </div>
+                <div class="booking-message">
+                    <strong>Your Query:</strong> ${booking.message}
+                </div>
+                <div class="booking-actions">
+                    <button class="btn-delete-booking" onclick="deleteMyBooking('${booking.id}')">
+                        <i class="fas fa-trash"></i> Delete Booking
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    myBookingsContainer.innerHTML = bookingsHTML;
+    console.log('displayMyBookings: Rendered', allBookings.length, 'booking cards');
+}
+
+function deleteMyBooking(bookingId) {
+    console.log('deleteMyBooking: Attempting to delete booking:', bookingId);
+    
+    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+        return;
+    }
+    
+    // Delete from database (which syncs to localStorage and Firebase)
+    const result = deleteBooking(bookingId);
+    
+    if (result) {
+        console.log('✅ deleteMyBooking: Booking deleted successfully:', bookingId);
+        showNotification('✅ Booking deleted successfully!', 'success');
+        
+        // Refresh the display
+        displayMyBookings();
+        
+        // Update time slot availability
+        const dateInput = document.getElementById('date');
+        if (dateInput && dateInput.value) {
+            updateAvailableTimeSlots(dateInput.value);
+        }
+    } else {
+        console.error('❌ deleteMyBooking: Failed to delete booking');
+        showNotification('❌ Error deleting booking. Please try again.', 'error');
+    }
+}
 
 // ============================
 // Contact Form Handling

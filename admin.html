@@ -91,6 +91,66 @@
                 font-size: 0.938rem;
             }
         }
+        /* New Year Offer Banner */
+        .new-year-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+        .new-year-banner.show {
+            display: block;
+        }
+        .new-year-banner h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .new-year-banner p {
+            margin: 0 0 12px 0;
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+        .banner-highlight {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 0 8px;
+            font-weight: 600;
+        }
+        .close-banner {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .close-banner:hover {
+            opacity: 1;
+        }
+        @media (max-width: 768px) {
+            .new-year-banner {
+                padding: 16px;
+            }
+            .new-year-banner h2 {
+                font-size: 1.25rem;
+            }
+            .new-year-banner p {
+                font-size: 0.9rem;
+            }
+            .banner-highlight {
+                display: block;
+                margin: 8px 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -114,6 +174,14 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <!-- New Year Offer Banner -->
+    <div class="new-year-banner show" id="newYearBanner">
+        <button class="close-banner" onclick="closeBanner()">&times;</button>
+        <h2>🎉 New Year Special Offer! 🎉</h2>
+        <p>Celebrate 2025 with <span class="banner-highlight">FREE Career Guidance Sessions</span></p>
+        <p style="font-size: 0.95rem; opacity: 0.9;">Limited time offer - Book your free session today!</p>
     </div>
 
     <!-- Admin Dashboard Content -->
@@ -278,6 +346,14 @@
             }
         });
 
+        // Close New Year Banner
+        function closeBanner() {
+            const banner = document.getElementById('newYearBanner');
+            banner.style.display = 'none';
+            // Save preference to localStorage so it stays closed for this user
+            localStorage.setItem('newYearBannerClosed', 'true');
+        }
+
         // Load and display bookings
         function loadDashboard() {
             // Debug: Check if Firebase is initialized
@@ -432,6 +508,13 @@
             console.log('Admin: Auto-refresh interval triggered');
             loadDashboard();
         }, 10000);
+
+        // Check if banner should be hidden
+        window.addEventListener('load', function() {
+            if (localStorage.getItem('newYearBannerClosed') === 'true') {
+                document.getElementById('newYearBanner').style.display = 'none';
+            }
+        });
     </script>
 </body>
 </html>
