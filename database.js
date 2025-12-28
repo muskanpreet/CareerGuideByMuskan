@@ -91,7 +91,7 @@ function saveBooking(bookingData) {
             id: generateBookingId(),
             ...bookingData,
             status: 'confirmed',
-            createdAt: new Date().toISOString()
+            timestamp: new Date().toISOString()
         };
         
         const bookings = getAllBookings();

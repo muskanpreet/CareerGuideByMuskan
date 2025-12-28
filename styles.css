@@ -1480,8 +1480,8 @@ section {
 
 /* New Year Sale Banner */
 .new-year-sale-banner {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: #ffffff;
     padding: 16px 20px;
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -1505,12 +1505,16 @@ section {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .new-year-sale-banner p {
     margin: 0;
     font-size: 1rem;
-    opacity: 0.95;
+    opacity: 1;
+    color: #ffffff;
+    font-weight: 500;
 }
 
 .sale-emoji {
@@ -1554,7 +1558,7 @@ section {
 /* Dark Mode - Banner */
 @media (prefers-color-scheme: dark) {
     .new-year-sale-banner {
-        background: linear-gradient(135deg, #5566cc 0%, #6b3a9a 100%);
+        background: linear-gradient(135deg, #e63946 0%, #d62828 100%);
     }
 }
 

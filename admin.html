@@ -407,6 +407,7 @@
                                 <th>Session</th>
                                 <th>Date</th>
                                 <th>Time</th>
+                                <th>Booked On</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -421,6 +422,7 @@
                                     <td>${booking.sessionType === '30min' ? '30 min (₹199)' : booking.sessionType === '60min' ? '60 min (₹299)' : '⛔ Blocked'}</td>
                                     <td>${formatDate(booking.date)}</td>
                                     <td>${booking.time}</td>
+                                    <td>${formatDateTime(booking.timestamp)}</td>
                                     <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
                                     <td>
                                         <div class="action-buttons">
@@ -446,6 +448,13 @@
         function formatDate(dateStr) {
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        function formatDateTime(timestamp) {
+            if (!timestamp) return 'N/A';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) + ' ' + 
+                   date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
         }
 
         function removeBooking(id) {
