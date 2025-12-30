@@ -112,6 +112,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    
+    <!-- Email Service -->
+    <script src="email-service.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAalGBn2TEtQx4deucgAoHmxqCjaNIl8ZU",
@@ -786,6 +789,14 @@
     <script src="firebase-db.js"></script>
     <!-- Load main script -->
     <script src="script.js"></script>
+    
+    <!-- Load QR Code Base64 for emails -->
+    <script>
+        // Load QR code base64 when page loads
+        if (typeof loadQRCodeBase64 === 'function') {
+            document.addEventListener('DOMContentLoaded', loadQRCodeBase64);
+        }
+    </script>
     
     <!-- FAQ Accordion Script -->
     <script>

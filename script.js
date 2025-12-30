@@ -196,6 +196,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show success message with booking ID
             showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
             
+            // Send booking confirmation email
+            if (typeof sendBookingConfirmationEmail === 'function') {
+                sendBookingConfirmationEmail(formData, booking.id);
+                console.log('📧 Booking confirmation email generated for:', formData.email);
+            }
+            
             // Log booking stats
             const stats = getBookingStats();
             console.log('Booking stats:', stats);

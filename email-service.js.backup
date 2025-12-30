@@ -1,0 +1,336 @@
+// ============================
+// Email Service for CareerGuide
+// ============================
+
+// ⚠️ SETUP INSTRUCTIONS:
+// Using EmailJS REST API (no library needed)
+
+const EMAIL_CONFIG = {
+    SERVICE_ID: 'service_3ofuexb',      // Your EmailJS Service ID
+    TEMPLATE_ID: 'template_oha16ro',    // Your EmailJS Template ID
+    PUBLIC_KEY: 'jq26AN-iaVU9jU5ax'    // Your Public Key
+};
+
+// Global QR Code Base64 - loaded from external file or embedded directly
+let globalQRCodeBase64 = null;
+
+// Load QR Code Base64 from server
+async function loadQRCodeBase64() {
+    try {
+        // Try to load from data file (in production, this would be an asset)
+        const response = await fetch('./qr_temp.txt');
+        if (response.ok) {
+            globalQRCodeBase64 = await response.text();
+            console.log('✅ QR Code Base64 loaded:', globalQRCodeBase64.length, 'characters');
+        }
+    } catch (error) {
+        console.warn('⚠️ Could not load QR code base64:', error);
+        // Fallback: Embedded minimal QR code (if external file not available)
+        globalQRCodeBase64 = ''; // Will be set if file is available
+    }
+}
+
+// Initialize EmailJS via direct API (no library needed)
+function initEmailJS() {
+    console.log('✅ EmailJS API initialized (no library needed)');
+}
+
+// Initialize on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initEmailJS);
+} else {
+    initEmailJS();
+}
+
+/**
+ * Generate booking confirmation email
+ * @param {Object} bookingData - Booking data from form
+ * @param {string} bookingId - Unique booking ID
+ * @returns {string} HTML email content
+ */
+function generateBookingConfirmationEmail(bookingData, bookingId) {
+    // Format date
+    const dateObj = new Date(bookingData.date);
+    const formattedDate = dateObj.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    // Determine amount based on session type
+    const isQuickSession = bookingData.sessionType.toLowerCase().includes('30') || bookingData.sessionType.toLowerCase().includes('quick');
+    const amount = isQuickSession ? 'FREE' : '₹49';
+    
+    // QR Code - using embedded base64 data URI (works better in email clients than external URLs)
+    const qrCodeDataURI = 'data:image/png;base64,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';
+    
+    let qrCodeHTML = '';
+    if (!isQuickSession) {
+        qrCodeHTML = `
+            <div style="text-align: center; margin: 20px 0;">
+                <p style="color: #667eea; font-weight: 600; margin-bottom: 10px;">🔐 Scan the QR code below or use the UPI details above to make payment</p>
+                <img src="${qrCodeDataURI}" alt="Payment QR Code" style="max-width: 200px; height: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px; background: white; display: inline-block;">
+            </div>
+        `;
+    }
+    
+    const emailHTML = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Session Booking Confirmation</title>
+            <style>
+                body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 20px; }
+                .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
+                .header h1 { margin: 0; font-size: 24px; }
+                .body { padding: 30px 25px; }
+                .section { margin: 25px 0; }
+                .section-title { color: #2c3e50; font-size: 15px; font-weight: 700; margin-bottom: 18px; border-bottom: 2px solid #667eea; padding-bottom: 12px; }
+                .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5; }
+                .detail-label { color: #667eea; font-weight: 600; }
+                .detail-value { color: #2c3e50; text-align: right; }
+                .amount-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 6px; text-align: center; margin: 20px 0; }
+                .amount-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
+                .amount { font-size: 32px; font-weight: 700; }
+                .upi-info { background: #f8f9fb; padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 13px; }
+                .upi-info strong { display: block; color: #667eea; margin-bottom: 5px; }
+                .notes { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; font-size: 13px; color: #856404; }
+                .notes strong { display: block; margin-bottom: 8px; }
+                .notes ul { margin: 10px 0 0 20px; padding: 0; }
+                .notes li { margin: 5px 0; }
+                .footer { background: #2c3e50; color: #ecf0f1; padding: 25px; text-align: center; font-size: 12px; }
+                .footer p { margin: 5px 0; }
+                .footer strong { display: block; margin-bottom: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>✅ Your Session is Confirmed!</h1>
+                </div>
+                
+                <div class="body">
+                    <p style="color: #555; font-size: 16px; margin: 0 0 20px 0;">Hi <strong>${bookingData.name}</strong>,</p>
+                    
+                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Thank you for booking a session with CareerGuide! We're excited to help you advance your career. Your session has been successfully confirmed.</p>
+                    
+                    <div class="section">
+                        <div class="section-title">📋 YOUR SESSION DETAILS</div>
+                        <div class="detail-row">
+                            <span class="detail-label">Session Type:</span>
+                            <span class="detail-value">${bookingData.sessionType}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Date:</span>
+                            <span class="detail-value">${formattedDate}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Time:</span>
+                            <span class="detail-value">${bookingData.time} IST</span>
+                        </div>
+                        <div class="detail-row" style="border-bottom: none;">
+                            <span class="detail-label">Phone:</span>
+                            <span class="detail-value">${bookingData.phone}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="section">
+                        <div class="section-title">💰 PAYMENT DETAILS</div>
+                        <div class="amount-box">
+                            <div class="amount-label">Amount Due</div>
+                            <div class="amount">${amount}</div>
+                        </div>
+                        ${amount === 'FREE' ? '<p style="text-align: center; color: #27ae60; font-weight: 600;">🎉 This session is FREE!</p>' : ''}
+                    </div>
+                    
+                    ${amount !== 'FREE' ? `
+                    <div class="upi-info">
+                        <strong>UPI ID:</strong> oshinkaur175@oksbi<br>
+                        <strong style="margin-top: 8px;">Name:</strong> Muskanpreet Kaur
+                    </div>
+                    ` : ''}
+                    
+                    ${qrCodeHTML}
+                    
+                    <div class="notes">
+                        <strong>⚠️ IMPORTANT NOTES</strong>
+                        <ul>
+                            ${amount !== 'FREE' ? '<li>Please complete payment within 24 hours to secure your slot.</li>' : ''}
+                            <li>You can cancel or reschedule up to 24 hours before the session.</li>
+                            <li>Ensure you have a stable internet connection and a quiet environment.</li>
+                            <li>The Google Meet link will be shared 1 hour before the session starts.</li>
+                            <li>This is a one-on-one personalized session tailored to your needs.</li>
+                        </ul>
+                    </div>
+                    
+                    <p style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 25px;">If you have any questions or need to reschedule, feel free to reach out via email.</p>
+                    
+                    <p style="color: #2c3e50; font-size: 15px; font-weight: 600; margin-top: 20px;">We look forward to chatting with you! 💪</p>
+                </div>
+                
+                <div class="footer">
+                    <strong>Muskanpreet Kaur</strong>
+                    <p>Career Guidance Consultant<br>Microsoft Azure Team</p>
+                    <p style="margin-top: 15px; border-top: 1px solid #34495e; padding-top: 15px;">
+                        📧 muskanpreet175@gmail.com<br>
+                        🌐 careerguidebymuskan.netlify.app
+                    </p>
+                    <p style="margin-top: 15px; opacity: 0.7;">© 2025 CareerGuide. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+    
+    return emailHTML;
+}
+
+/**
+ * Send booking confirmation email via EmailJS REST API
+ * @param {Object} bookingData - Booking data
+ * @param {string} bookingId - Booking ID
+ */
+function sendBookingConfirmationEmail(bookingData, bookingId) {
+    console.log('📧 sendBookingConfirmationEmail called');
+    console.log('📧 Email:', bookingData.email);
+    console.log('📧 Name:', bookingData.name);
+    console.log('📧 Booking ID:', bookingId);
+    
+    try {
+        // Generate the email HTML
+        const emailHTML = generateBookingConfirmationEmail(bookingData, bookingId);
+        console.log('📧 Email HTML generated');
+        
+        // Format date for display
+        const dateObj = new Date(bookingData.date);
+        const formattedDate = dateObj.toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        // Determine amount (matching form values: 30min or 60min)
+        const isQuickSession = bookingData.sessionType === '30min';
+        const amount = isQuickSession ? 'FREE' : '₹49';
+        
+        // Prepare email parameters
+        const emailParams = {
+            service_id: EMAIL_CONFIG.SERVICE_ID,
+            template_id: EMAIL_CONFIG.TEMPLATE_ID,
+            user_id: EMAIL_CONFIG.PUBLIC_KEY,
+            template_params: {
+                to_email: bookingData.email,
+                to_name: bookingData.name,
+                subject: '✅ Your CareerGuide Session is Confirmed!',
+                html_message: emailHTML,
+                from_name: 'Muskanpreet Kaur',
+                from_email: 'muskanpreet175@gmail.com'
+            }
+        };
+        
+        console.log('📧 Sending email via EmailJS REST API...');
+        
+        // Send email using EmailJS REST API
+        fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(emailParams)
+        })
+        .then(response => {
+            console.log('📧 API Response:', response.status);
+            if (response.ok) {
+                console.log('✅ Email sent successfully!');
+                console.log('📧 Email sent to:', bookingData.email);
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+        })
+        .catch((error) => {
+            console.error('❌ Error sending email:', error);
+            console.log('Error details:', error.message);
+            // If EmailJS fails, store for manual sending
+            storeEmailForManualSending(bookingData, bookingId, emailHTML);
+            console.log('⚠️ Email stored for manual sending');
+        });
+        
+    } catch (error) {
+        console.error('❌ Error in sendBookingConfirmationEmail:', error);
+    }
+}
+
+/**
+ * Get pending emails (for admin dashboard)
+ */
+function getPendingEmails() {
+    return JSON.parse(localStorage.getItem('pendingEmails')) || [];
+}
+
+/**
+ * Store email for manual sending (fallback)
+ */
+function storeEmailForManualSending(bookingData, bookingId, emailHTML) {
+    const emailData = {
+        to: bookingData.email,
+        subject: `✅ Your CareerGuide Session is Confirmed!`,
+        html: emailHTML,
+        timestamp: new Date().toISOString(),
+        bookingId: bookingId,
+        customerName: bookingData.name,
+        customerEmail: bookingData.email
+    };
+    
+    let pendingEmails = JSON.parse(localStorage.getItem('pendingEmails')) || [];
+    pendingEmails.push(emailData);
+    localStorage.setItem('pendingEmails', JSON.stringify(pendingEmails));
+}
+
+/**
+ * Download email as HTML file for easy sending
+ */
+function downloadEmailAsHTML(bookingId) {
+    const emails = getPendingEmails();
+    const email = emails.find(e => e.bookingId === bookingId);
+    
+    if (!email) {
+        console.error('Email not found for booking ID:', bookingId);
+        alert('Email not found');
+        return;
+    }
+    
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(email.html));
+    element.setAttribute('download', `booking-confirmation-${bookingId}.html`);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+    
+    console.log('✅ Email downloaded as HTML file');
+}
+
+/**
+ * Copy email content to clipboard for pasting in Gmail/Outlook
+ */
+function copyEmailToClipboard(bookingId) {
+    const emails = getPendingEmails();
+    const email = emails.find(e => e.bookingId === bookingId);
+    
+    if (!email) {
+        alert('Email not found');
+        return;
+    }
+    
+    // Copy the HTML content
+    navigator.clipboard.writeText(email.html).then(() => {
+        alert('Email HTML copied to clipboard! You can now paste it in your email client.');
+        console.log('✅ Email HTML copied to clipboard');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy. Please try again.');
+    });
+}

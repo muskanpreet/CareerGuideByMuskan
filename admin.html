@@ -231,11 +231,11 @@
                 <div class="value" id="totalBookings">0</div>
             </div>
             <div class="stat-card">
-                <h3>Quick Sessions (30min)</h3>
+                <h3>🎉 Quick Sessions (FREE)</h3>
                 <div class="value" id="quickSessions">0</div>
             </div>
             <div class="stat-card">
-                <h3>Detailed Sessions (60min)</h3>
+                <h3>💎 Detailed Sessions (₹49)</h3>
                 <div class="value" id="detailedSessions">0</div>
             </div>
             <div class="stat-card">
@@ -354,6 +354,23 @@
             localStorage.setItem('newYearBannerClosed', 'true');
         }
 
+        // Helper function to determine session price
+        function getSessionPrice(sessionType) {
+            const isQuickSession = sessionType.toLowerCase().includes('30') || sessionType.toLowerCase().includes('quick');
+            return isQuickSession ? 0 : 49; // FREE (0) for quick, 49 for detailed
+        }
+
+        // Helper function to get session display name
+        function getSessionDisplay(sessionType, price) {
+            if (sessionType === 'blocked') {
+                return '⛔ Blocked';
+            }
+            const priceText = price === 0 ? 'FREE' : `₹${price}`;
+            const isQuickSession = price === 0;
+            const sessionName = isQuickSession ? '30 min' : '60 min';
+            return `${sessionName} (${priceText})`;
+        }
+
         // Load and display bookings
         function loadDashboard() {
             // Debug: Check if Firebase is initialized
@@ -363,16 +380,33 @@
             // Fetch bookings from Firebase
             getAllBookingsFromFirebase(function(bookings) {
                 console.log('📊 DASHBOARD LOAD - Bookings received from Firebase:', bookings.length);
+                console.log('📊 Sample bookings:', bookings.slice(0, 3));
                 
+                // Calculate stats with correct pricing logic
                 const stats = {
                     total: bookings.length,
-                    quickSessions: bookings.filter(b => b.sessionType === '30min').length,
-                    detailedSessions: bookings.filter(b => b.sessionType === '60min').length,
-                    totalRevenue: bookings.reduce((sum, b) => {
-                        const amount = b.sessionType === '30min' ? 199 : 299;
-                        return sum + (b.sessionType === 'blocked' ? 0 : amount);
-                    }, 0)
+                    quickSessions: 0,
+                    detailedSessions: 0,
+                    totalRevenue: 0,
+                    blockedSlots: 0
                 };
+                
+                // Count and calculate revenue
+                bookings.forEach(b => {
+                    if (b.sessionType === 'blocked') {
+                        stats.blockedSlots++;
+                    } else {
+                        const price = getSessionPrice(b.sessionType);
+                        const isQuickSession = price === 0;
+                        
+                        if (isQuickSession) {
+                            stats.quickSessions++;
+                        } else {
+                            stats.detailedSessions++;
+                            stats.totalRevenue += price; // Only add revenue for paid sessions
+                        }
+                    }
+                });
 
                 console.log('📊 DASHBOARD LOAD - Stats calculated:', stats);
 
@@ -404,24 +438,34 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Phone</th>
-                                <th>Session</th>
+                                <th>Session Type</th>
+                                <th>Price</th>
                                 <th>Date</th>
                                 <th>Time</th>
+                                <th>Details/Query</th>
                                 <th>Booked On</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            ${bookings.reverse().map(booking => `
+                            ${bookings.reverse().map(booking => {
+                                const price = getSessionPrice(booking.sessionType);
+                                const priceDisplay = booking.sessionType === 'blocked' ? 'N/A' : (price === 0 ? '🎉 FREE' : `₹${price}`);
+                                const sessionDisplay = booking.sessionType === 'blocked' ? 'Blocked Slot' : (price === 0 ? '30 min' : '60 min');
+                                const detailsText = booking.message ? booking.message.substring(0, 50) + (booking.message.length > 50 ? '...' : '') : 'N/A';
+                                
+                                return `
                                 <tr>
                                     <td><strong>${booking.id}</strong></td>
                                     <td>${booking.name}</td>
                                     <td>${booking.email}</td>
                                     <td>${booking.phone}</td>
-                                    <td>${booking.sessionType === '30min' ? '30 min (₹199)' : booking.sessionType === '60min' ? '60 min (₹299)' : '⛔ Blocked'}</td>
+                                    <td>${sessionDisplay}</td>
+                                    <td><strong>${priceDisplay}</strong></td>
                                     <td>${formatDate(booking.date)}</td>
                                     <td>${booking.time}</td>
+                                    <td title="${booking.message || 'No details'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help;">${detailsText}</td>
                                     <td>${formatDateTime(booking.timestamp)}</td>
                                     <td><span class="status-badge status-${booking.status}">${booking.status}</span></td>
                                     <td>
@@ -436,7 +480,7 @@
                                         </div>
                                     </td>
                                 </tr>
-                            `).join('')}
+                            `}).join('')}
                         </tbody>
                     </table>
                 `;
