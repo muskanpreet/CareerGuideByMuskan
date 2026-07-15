@@ -144,12 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     bookingForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        console.log('Form submitted'); // Debug log
 
         // Prevent double-submission (rapid clicks / double taps)
         const submitBtn = bookingForm.querySelector('button[type="submit"], input[type="submit"]');
         if (bookingForm.dataset.submitting === 'true') {
-            console.log('⏳ Submission already in progress, ignoring duplicate');
             return;
         }
         bookingForm.dataset.submitting = 'true';
@@ -204,13 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // from booking the same slot when their localStorage is out of sync.
         const proceedWithSave = () => {
             // Save booking to database
-            console.log('📝 BOOKING SUBMISSION START');
-            console.log('Form data:', formData);
-            console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
-            console.log('saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
 
             const booking = saveBooking(formData);
-            console.log('Booking saved result:', booking);
 
             if (booking) {
                 // Show success message with booking ID
@@ -219,19 +212,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Send booking confirmation email
                 if (typeof sendBookingConfirmationEmail === 'function') {
                     sendBookingConfirmationEmail(formData, booking.id);
-                    console.log('📧 Booking confirmation email generated for:', formData.email);
                 }
 
                 // Log booking stats
                 const stats = getBookingStats();
-                console.log('Booking stats:', stats);
 
                 // Reset form
                 bookingForm.reset();
 
                 // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                console.log('📝 BOOKING SUBMISSION END - SUCCESS');
 
                 // Refresh my bookings display
                 displayMyBookings();
@@ -239,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 console.error('❌ Failed to save booking');
                 showNotification('Error processing booking. Please try again.', 'error');
-                console.log('📝 BOOKING SUBMISSION END - FAILED');
                 releaseLock();
             }
         };
@@ -268,17 +257,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // My Bookings Functions
 // ============================
 function displayMyBookings() {
-    console.log('displayMyBookings: Loading user bookings...');
     const myBookingsContainer = document.getElementById('myBookingsContainer');
     
     if (!myBookingsContainer) {
-        console.log('displayMyBookings: Container not found');
         return;
     }
     
     // Get all bookings from localStorage
     const allBookings = getAllBookings();
-    console.log('displayMyBookings: Found', allBookings.length, 'bookings');
     
     if (!allBookings || allBookings.length === 0) {
         myBookingsContainer.innerHTML = '<p class="no-bookings-text">No bookings yet. Submit a booking above to get started!</p>';
@@ -330,11 +316,9 @@ function displayMyBookings() {
     }).join('');
     
     myBookingsContainer.innerHTML = bookingsHTML;
-    console.log('displayMyBookings: Rendered', allBookings.length, 'booking cards');
 }
 
 function deleteMyBooking(bookingId) {
-    console.log('deleteMyBooking: Attempting to delete booking:', bookingId);
     
     if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
         return;
@@ -344,7 +328,6 @@ function deleteMyBooking(bookingId) {
     const result = deleteBooking(bookingId);
     
     if (result) {
-        console.log('✅ deleteMyBooking: Booking deleted successfully:', bookingId);
         showNotification('✅ Booking deleted successfully!', 'success');
         
         // Refresh the display
