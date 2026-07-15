@@ -1,0 +1,562 @@
+/* ============================
+   Admin Dashboard Styles
+============================ */
+
+.admin-container {
+    max-width: 1400px;
+    margin: 80px auto 40px;
+    padding: 24px;
+}
+
+.admin-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: white;
+    padding: 40px;
+    border-radius: 16px;
+    margin-bottom: 32px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 8px;
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+.bookings-table {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#tableContainer {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#tableContainer::-webkit-scrollbar {
+    height: 8px;
+}
+
+#tableContainer::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+#tableContainer::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+#tableContainer::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.table-header {
+    padding: 24px;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.table-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 16px 24px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+    background: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.813rem;
+    font-weight: 500;
+}
+
+.status-confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-blocked {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.813rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-export {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-unblock {
+    background: #10b981;
+    color: white;
+}
+
+    .btn-refresh {
+        background: #2563eb;
+        color: white;
+    }
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 32px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.form-group-inline {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-inline label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #475569;
+}
+
+.form-group-inline input,
+.form-group-inline select {
+    padding: 10px 14px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+.btn-block {
+    background: #f59e0b;
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-block:hover {
+    background: #d97706;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .form-row .btn-block {
+        grid-column: 1 / -1;
+    }
+    
+    table {
+        font-size: 0.875rem;
+    }
+    
+    th, td {
+        padding: 12px 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        margin-top: 60px;
+        padding: 16px;
+    }
+    
+    .admin-header {
+        padding: 24px;
+    }
+    
+    .admin-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .block-slot-form {
+        padding: 20px;
+    }
+    
+    .block-slot-form h3 {
+        font-size: 1rem;
+    }
+    
+    .table-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+    }
+    
+    .table-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .btn-export {
+        width: 100%;
+    }
+    
+    /* Make table scrollable on mobile */
+    .bookings-table {
+        overflow-x: auto;
+    }
+    
+    table {
+        min-width: 800px;
+        font-size: 0.813rem;
+    }
+    
+    th, td {
+        padding: 10px 12px;
+        white-space: nowrap;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-small {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-card .value {
+        font-size: 1.75rem;
+    }
+    
+    .stat-card h3 {
+        font-size: 0.813rem;
+    }
+    
+    .form-group-inline input,
+    .form-group-inline select {
+        padding: 8px 12px;
+        font-size: 0.875rem;
+    }
+    
+    .btn-block {
+        padding: 12px 20px;
+        font-size: 0.875rem;
+    }
+    
+    table {
+        font-size: 0.75rem;
+    }
+    
+    th, td {
+        padding: 8px 10px;
+    }
+    
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 3px 8px;
+    }
+}
+
+/* ============================
+   Dark Mode Support
+============================ */
+@media (prefers-color-scheme: dark) {
+    .admin-container {
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        color: #e2e8f0;
+        border: 1px solid #334155;
+    }
+
+    .stat-card {
+        background: #1e293b;
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .stat-card h3 {
+        color: #cbd5e1;
+    }
+
+    .stat-card .value {
+        color: #60a5fa;
+    }
+
+    .bookings-table {
+        background: #1e293b;
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .table-header {
+        background: #1e293b;
+        border-bottom-color: #334155;
+        color: #e2e8f0;
+    }
+
+    .table-header h2 {
+        color: #e2e8f0;
+    }
+
+    table {
+        background: #1e293b;
+        color: #e2e8f0;
+    }
+
+    th {
+        background: #0f172a;
+        color: #cbd5e1;
+        border-bottom-color: #334155;
+    }
+
+    td {
+        background: #1e293b;
+        color: #e2e8f0;
+        border-bottom-color: #334155;
+    }
+
+    tr:hover td {
+        background: #334155;
+    }
+
+    #tableContainer::-webkit-scrollbar-track {
+        background: #0f172a;
+    }
+
+    #tableContainer::-webkit-scrollbar-thumb {
+        background: #475569;
+    }
+
+    #tableContainer::-webkit-scrollbar-thumb:hover {
+        background: #64748b;
+    }
+
+    .status-confirmed {
+        background: rgba(16, 185, 129, 0.2);
+        color: #6ee7b7;
+    }
+
+    .status-blocked {
+        background: rgba(245, 158, 11, 0.2);
+        color: #fcd34d;
+    }
+
+    .block-slot-form {
+        background: #1e293b;
+        border: 1px solid #334155;
+        color: #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .block-slot-form h3 {
+        color: #e2e8f0;
+    }
+
+    .form-group label {
+        color: #cbd5e1;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    input[type="time"]:focus,
+    textarea:focus,
+    select:focus {
+        border-color: #60a5fa;
+        background: #0f172a;
+        color: #e2e8f0;
+    }
+
+    .btn-block {
+        background: #2563eb;
+        color: white;
+        border: none;
+    }
+
+    .btn-block:hover {
+        background: #1d4ed8;
+    }
+
+    .empty-state {
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        color: #475569;
+    }
+
+    /* Login screen dark mode */
+    #loginScreen {
+        background: #0f172a;
+    }
+
+    .login-container {
+        background: #1e293b;
+        border-color: #334155;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .login-container h2 {
+        color: #e2e8f0;
+    }
+
+    .form-group input {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    .login-btn {
+        background: #2563eb;
+        color: white;
+    }
+
+    .login-btn:hover {
+        background: #1d4ed8;
+    }
+
+    .error-message {
+        background: rgba(239, 68, 68, 0.1);
+        color: #fca5a5;
+        border-color: #dc2626;
+    }
+
+    .btn-export {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-export:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-delete {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #dc2626;
+    }
+
+    .btn-unblock {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-unblock:hover {
+        background: #059669;
+    }
+
+    .btn-refresh {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-refresh:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-small:hover {
+        opacity: 1;
+    }
+}

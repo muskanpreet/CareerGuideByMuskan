@@ -1,0 +1,846 @@
+// ============================
+// New Year Sale Banner
+// ============================
+function closeBanner() {
+    const banner = document.getElementById('newYearBanner');
+    const navbar = document.getElementById('navbar');
+    if (banner) {
+        banner.style.display = 'none';
+        document.body.style.paddingTop = '0';
+        if (navbar) navbar.classList.add('banner-closed');
+    }
+}
+
+
+// ============================
+// Navigation & Mobile Menu
+// ==============================
+const navbar = document.getElementById('navbar');
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const navMenu = document.getElementById('navMenu');
+const navLinks = document.querySelectorAll('.nav-link');
+
+// Sticky navbar on scroll
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
+});
+
+// Mobile menu toggle
+mobileMenuToggle.addEventListener('click', () => {
+    mobileMenuToggle.classList.toggle('active');
+    navMenu.classList.toggle('active');
+});
+
+// Close mobile menu when clicking on a link
+navLinks.forEach(link => {
+    link.addEventListener('click', () => {
+        mobileMenuToggle.classList.remove('active');
+        navMenu.classList.remove('active');
+    });
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!navMenu.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+        mobileMenuToggle.classList.remove('active');
+        navMenu.classList.remove('active');
+    }
+});
+
+// ============================
+// Smooth Scroll with Offset
+// ============================
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+            const offsetTop = targetElement.offsetTop - 80;
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        }
+    });
+});
+
+// ============================
+// Scroll to Top Button
+// ============================
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+        scrollTopBtn.classList.add('visible');
+    } else {
+        scrollTopBtn.classList.remove('visible');
+    }
+});
+
+scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+
+// ============================
+// Booking Form Handling
+// ============================
+
+// Function to update time slot availability (defined globally for access from deleteMyBooking)
+function updateAvailableTimeSlots(selectedDate) {
+    const timeSelect = document.getElementById('time');
+    if (!timeSelect) return;
+    
+    const options = timeSelect.querySelectorAll('option');
+    
+    options.forEach(option => {
+        if (option.value === '') return; // Skip the placeholder option
+        
+        const timeValue = option.value;
+        const isAvailable = isSlotAvailable(selectedDate, timeValue);
+        
+        if (!isAvailable) {
+            option.disabled = true;
+            option.style.color = '#cbd5e1';
+            option.style.backgroundColor = '#f1f5f9';
+            option.textContent = option.textContent.replace(' (Booked)', '') + ' (Booked)';
+        } else {
+            option.disabled = false;
+            option.style.color = '';
+            option.style.backgroundColor = '';
+            option.textContent = option.textContent.replace(' (Booked)', '');
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const bookingForm = document.getElementById('bookingForm');
+    
+    if (!bookingForm) {
+        console.error('Booking form not found');
+        return;
+    }
+
+    // Set minimum date to today
+    const dateInput = document.getElementById('date');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.setAttribute('min', today);
+
+    // Update available time slots when date changes
+    dateInput.addEventListener('change', function() {
+        updateAvailableTimeSlots(this.value);
+    });
+
+// Continue with booking form DOMContentLoaded
+
+    bookingForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        console.log('Form submitted'); // Debug log
+        
+        // Get form data
+        const formData = {
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            phone: document.getElementById('phone').value,
+            sessionType: document.getElementById('sessionType').value,
+            date: document.getElementById('date').value,
+            time: document.getElementById('time').value,
+            message: document.getElementById('message').value
+        };
+        
+        // Validate form
+        if (!formData.name || !formData.email || !formData.phone || !formData.sessionType || !formData.date || !formData.time || !formData.message) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            showNotification('Please enter a valid email address', 'error');
+            return;
+        }
+        
+        // Phone validation (basic)
+        const cleanPhone = formData.phone.replace(/\D/g, '');
+        if (cleanPhone.length < 10) {
+            showNotification('Please enter a valid phone number', 'error');
+            return;
+        }
+        
+        // Check if slot is available
+        if (!isSlotAvailable(formData.date, formData.time)) {
+            showNotification('This time slot is already booked. Please choose another time.', 'error');
+            return;
+        }
+        
+        // Save booking to database
+        console.log('📝 BOOKING SUBMISSION START');
+        console.log('Form data:', formData);
+        console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
+        console.log('saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
+        
+        const booking = saveBooking(formData);
+        console.log('Booking saved result:', booking);
+        
+        if (booking) {
+            // Show success message with booking ID
+            showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
+            
+            // Send booking confirmation email
+            if (typeof sendBookingConfirmationEmail === 'function') {
+                sendBookingConfirmationEmail(formData, booking.id);
+                console.log('📧 Booking confirmation email generated for:', formData.email);
+            }
+            
+            // Log booking stats
+            const stats = getBookingStats();
+            console.log('Booking stats:', stats);
+            
+            // Reset form
+            bookingForm.reset();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            console.log('📝 BOOKING SUBMISSION END - SUCCESS');
+            
+            // Refresh my bookings display
+            displayMyBookings();
+        } else {
+            console.error('❌ Failed to save booking');
+            showNotification('Error processing booking. Please try again.', 'error');
+            console.log('📝 BOOKING SUBMISSION END - FAILED');
+        }
+    });
+    
+    // Load my bookings on page load
+    displayMyBookings();
+});
+
+// ============================
+// My Bookings Functions
+// ============================
+function displayMyBookings() {
+    console.log('displayMyBookings: Loading user bookings...');
+    const myBookingsContainer = document.getElementById('myBookingsContainer');
+    
+    if (!myBookingsContainer) {
+        console.log('displayMyBookings: Container not found');
+        return;
+    }
+    
+    // Get all bookings from localStorage
+    const allBookings = getAllBookings();
+    console.log('displayMyBookings: Found', allBookings.length, 'bookings');
+    
+    if (!allBookings || allBookings.length === 0) {
+        myBookingsContainer.innerHTML = '<p class="no-bookings-text">No bookings yet. Submit a booking above to get started!</p>';
+        return;
+    }
+    
+    // Build HTML for each booking
+    const bookingsHTML = allBookings.map(booking => {
+        const dateObj = new Date(booking.date);
+        const formattedDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        const sessionLabel = booking.sessionType === '30min' ? '30-min Session (₹199)' : 
+                           booking.sessionType === '60min' ? '60-min Session (₹299)' : 
+                           'Blocked Slot';
+        
+        return `
+            <div class="booking-card" data-booking-id="${booking.id}">
+                <div class="booking-card-header">
+                    <span class="booking-id">Booking ID: ${booking.id}</span>
+                    <span class="booking-status ${booking.status}">${booking.status}</span>
+                </div>
+                <div class="booking-details">
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Name</span>
+                        ${booking.name}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Session</span>
+                        ${sessionLabel}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Date</span>
+                        ${formattedDate}
+                    </div>
+                    <div class="booking-detail">
+                        <span class="booking-detail-label">Time</span>
+                        ${booking.time}
+                    </div>
+                </div>
+                <div class="booking-message">
+                    <strong>Your Query:</strong> ${booking.message}
+                </div>
+                <div class="booking-actions">
+                    <button class="btn-delete-booking" onclick="deleteMyBooking('${booking.id}')">
+                        <i class="fas fa-trash"></i> Delete Booking
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    myBookingsContainer.innerHTML = bookingsHTML;
+    console.log('displayMyBookings: Rendered', allBookings.length, 'booking cards');
+}
+
+function deleteMyBooking(bookingId) {
+    console.log('deleteMyBooking: Attempting to delete booking:', bookingId);
+    
+    if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+        return;
+    }
+    
+    // Delete from database (which syncs to localStorage and Firebase)
+    const result = deleteBooking(bookingId);
+    
+    if (result) {
+        console.log('✅ deleteMyBooking: Booking deleted successfully:', bookingId);
+        showNotification('✅ Booking deleted successfully!', 'success');
+        
+        // Refresh the display
+        displayMyBookings();
+        
+        // Update time slot availability
+        const dateInput = document.getElementById('date');
+        if (dateInput && dateInput.value) {
+            updateAvailableTimeSlots(dateInput.value);
+        }
+    } else {
+        console.error('❌ deleteMyBooking: Failed to delete booking');
+        showNotification('❌ Error deleting booking. Please try again.', 'error');
+    }
+}
+
+// ============================
+// Contact Form Handling
+// ============================
+const contactForm = document.getElementById('contactForm');
+
+if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        // Get form data
+        const formData = {
+            name: document.getElementById('contactName').value,
+            email: document.getElementById('contactEmail').value,
+            subject: document.getElementById('contactSubject').value,
+            message: document.getElementById('contactMessage').value
+        };
+        
+        // Validate form
+        if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+            showNotification('Please fill in all fields', 'error');
+            return;
+        }
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+    }
+        // Simulate form submission
+        
+        // Show success message
+        showNotification('Message sent successfully! I will get back to you soon.', 'success');
+        
+        // Reset form
+        contactForm.reset();
+        
+        // In a real application, send to backend
+        // fetch('/api/contact', {
+        //     method: 'POST',
+        //     headers: { 'Content-Type': 'application/json' },
+        //     body: JSON.stringify(formData)
+        // });
+    });
+}
+
+// ============================
+// Notification System
+// ============================
+function showNotification(message, type = 'info') {
+    // Remove existing notification if any
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close">&times;</button>
+    `;
+    
+    // Add styles
+    const style = document.createElement('style');
+    style.textContent = `
+        .notification {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            background: white;
+            color: #1f2937;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+            border-left: 4px solid;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .notification {
+                background: #1e293b;
+                color: #e2e8f0;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            }
+        }
+        
+        .notification-success {
+            border-color: #10b981;
+        }
+        
+        .notification-error {
+            border-color: #ef4444;
+        }
+        
+        .notification-info {
+            border-color: #3b82f6;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+        
+        .notification-content i {
+            font-size: 1.25rem;
+        }
+        
+        .notification-success i {
+            color: #10b981;
+        }
+        
+        .notification-error i {
+            color: #ef4444;
+        }
+        
+        .notification-info i {
+            color: #3b82f6;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        
+        .notification-close:hover {
+            color: #0f172a;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            .notification-close {
+                color: #94a3b8;
+            }
+            
+            .notification-close:hover {
+                color: #e2e8f0;
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .notification {
+                right: 16px;
+                left: 16px;
+                max-width: none;
+            }
+        }
+    `;
+    
+    if (!document.querySelector('style[data-notification-styles]')) {
+        style.setAttribute('data-notification-styles', 'true');
+        document.head.appendChild(style);
+    }
+    
+    // Add to DOM
+    document.body.appendChild(notification);
+    
+    // Close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
+
+// ============================
+// Intersection Observer for Animations
+// ============================
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Add animation styles
+const animationStyle = document.createElement('style');
+animationStyle.textContent = `
+    .service-card,
+    .testimonial-card,
+    .pricing-card,
+    .step,
+    .hero-text,
+    .contact-info {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+                    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hero-card {
+        opacity: 0;
+        transform: scale(0.8) rotate(-5deg);
+        transition: opacity 1s ease-out, transform 1s ease-out;
+    }
+    
+    .about-text {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+    
+    .about-card {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    }
+`;
+document.head.appendChild(animationStyle);
+
+// Observe elements
+document.addEventListener('DOMContentLoaded', () => {
+    const animatedElements = document.querySelectorAll('.service-card, .testimonial-card, .pricing-card, .step, .hero-card, .about-card, .hero-text, .about-text, .contact-info');
+    animatedElements.forEach(el => observer.observe(el));
+    
+    // Add parallax effect to hero
+    addParallaxEffect();
+
+    // ---- Staggered reveal: assign --i per-group so cards cascade in ----
+    const staggerGroups = [
+        '.pricing-grid .pricing-card',
+        '.services-grid .service-card',
+        '.booking-info .step',
+        '.testimonials-grid .testimonial-card',
+        '.hero-stats .stat'
+    ];
+    staggerGroups.forEach(selector => {
+        document.querySelectorAll(selector).forEach((el, i) => {
+            el.classList.add('stagger-item');
+            el.style.setProperty('--i', i);
+        });
+    });
+
+    // ---- Scroll progress bar ----
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!prefersReduced) {
+        const bar = document.createElement('div');
+        bar.className = 'scroll-progress';
+        document.body.appendChild(bar);
+        let ticking = false;
+        const updateBar = () => {
+            const doc = document.documentElement;
+            const scrollTop = doc.scrollTop || document.body.scrollTop;
+            const height = doc.scrollHeight - doc.clientHeight;
+            const pct = height > 0 ? (scrollTop / height) * 100 : 0;
+            bar.style.width = pct + '%';
+            ticking = false;
+        };
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(updateBar);
+                ticking = true;
+            }
+        }, { passive: true });
+        updateBar();
+    }
+});
+
+// ============================
+// Active Navigation Link
+// ============================
+const sections = document.querySelectorAll('section[id]');
+
+function highlightNavigation() {
+    const scrollY = window.pageYOffset;
+
+    sections.forEach(section => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 100;
+        const sectionId = section.getAttribute('id');
+        const navLink = document.querySelector(`.nav-link[href="#${sectionId}"]`);
+
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            navLinks.forEach(link => link.classList.remove('active'));
+            if (navLink) {
+                navLink.classList.add('active');
+            }
+        }
+    });
+}
+
+window.addEventListener('scroll', highlightNavigation);
+
+// Add active link styles
+const activeLinkStyle = document.createElement('style');
+activeLinkStyle.textContent = `
+    .nav-link.active {
+        color: var(--primary-color);
+    }
+    .nav-link.active::after {
+        width: 100%;
+    }
+`;
+document.head.appendChild(activeLinkStyle);
+
+// ============================
+// Form Field Validation Feedback
+// ============================
+const inputs = document.querySelectorAll('input, textarea, select');
+
+inputs.forEach(input => {
+    input.addEventListener('blur', function() {
+        if (this.hasAttribute('required')) {
+            if (!this.value.trim()) {
+                this.style.borderColor = '#ef4444';
+            } else {
+                this.style.borderColor = '#10b981';
+            }
+        }
+    });
+    
+    input.addEventListener('focus', function() {
+        this.style.borderColor = 'var(--primary-color)';
+    });
+});
+
+// ============================
+// Dynamic Year in Footer
+// ============================
+const footerYear = document.querySelector('.footer-bottom p');
+if (footerYear) {
+    const currentYear = new Date().getFullYear();
+    footerYear.innerHTML = `&copy; ${currentYear} CareerGuide. All rights reserved.`;
+}
+
+// ============================
+// Initialize on Load
+// ============================
+window.addEventListener('load', () => {
+    // Add loaded class for any initial animations
+    document.body.classList.add('loaded');
+    
+    // Trigger navigation highlight
+    highlightNavigation();
+    
+    // Start counter animation
+    setTimeout(() => {
+        animateCounters();
+    }, 500);
+});
+
+// ============================
+// Counter Animation
+// ============================
+function animateCounters() {
+    const stats = document.querySelectorAll('.stat-number');
+    
+    stats.forEach((stat, index) => {
+        const originalText = stat.textContent.trim();
+        
+        const isRating = originalText.includes('/');
+        let finalValue;
+        
+        if (isRating) {
+            finalValue = parseFloat(originalText.split('/')[0]);
+        } else {
+            finalValue = parseInt(originalText.replace('+', ''));
+        }
+        
+        let current = 0;
+        const duration = 2000; // 2 seconds
+        const startTime = Date.now();
+        
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            
+            current = finalValue * progress;
+            
+            if (progress < 1) {
+                if (isRating) {
+                    stat.textContent = current.toFixed(1) + '/5';
+                } else {
+                    stat.textContent = Math.floor(current) + '+';
+                }
+                requestAnimationFrame(animate);
+            } else {
+                stat.textContent = originalText;
+            }
+        };
+        
+        // Reset to 0 before starting
+        stat.textContent = isRating ? '0.0/5' : '0+';
+        
+        // Start animation
+        requestAnimationFrame(animate);
+    });
+}
+
+// ============================
+// Parallax Effect
+// ============================
+function addParallaxEffect() {
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+
+    // Disable heavy parallax on mobile, touch devices, or when reduced motion is preferred.
+    const isSmallScreen = window.matchMedia('(max-width: 768px)').matches;
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isTouch = window.matchMedia('(hover: none)').matches;
+    if (isSmallScreen || prefersReduced || isTouch) return;
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(() => {
+            const scrolled = window.pageYOffset;
+            const heroHeight = hero.offsetHeight;
+            if (scrolled < heroHeight) {
+                hero.style.transform = `translateY(${scrolled * 0.25}px)`;
+                hero.style.opacity = 1 - (scrolled / heroHeight) * 0.3;
+            } else {
+                hero.style.transform = 'translateY(0)';
+                hero.style.opacity = '1';
+            }
+            ticking = false;
+        });
+    }, { passive: true });
+}
+
+// ============================
+// Mouse Glow Effect
+// ============================
+document.addEventListener('mousemove', (e) => {
+    const cards = document.querySelectorAll('.service-card, .pricing-card, .testimonial-card');
+    
+    cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        }
+    });
+});
+
+// Add glow effect styles
+const glowStyle = document.createElement('style');
+glowStyle.textContent = `
+    .service-card,
+    .pricing-card,
+    .testimonial-card {
+        --mouse-x: 50%;
+        --mouse-y: 50%;
+        position: relative;
+    }
+    
+    .service-card::after,
+    .pricing-card::after,
+    .testimonial-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        opacity: 0;
+        background: radial-gradient(
+            600px circle at var(--mouse-x) var(--mouse-y),
+            rgba(37, 99, 235, 0.1),
+            transparent 40%
+        );
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    
+    .service-card:hover::after,
+    .pricing-card:hover::after,
+    .testimonial-card:hover::after {
+        opacity: 1;
+    }
+`;
+document.head.appendChild(glowStyle);
