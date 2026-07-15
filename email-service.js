@@ -13,7 +13,6 @@ const EMAIL_CONFIG = {
 
 // Initialize EmailJS via direct API (no library needed)
 function initEmailJS() {
-    console.log('✅ EmailJS API initialized (no library needed)');
 }
 
 // Initialize on page load
@@ -126,15 +125,10 @@ function generateBookingConfirmationEmail(bookingData, bookingId) {
  * @param {string} bookingId - Booking ID
  */
 function sendBookingConfirmationEmail(bookingData, bookingId) {
-    console.log('📧 sendBookingConfirmationEmail called');
-    console.log('📧 Email:', bookingData.email);
-    console.log('📧 Name:', bookingData.name);
-    console.log('📧 Booking ID:', bookingId);
     
     try {
         // Generate the email HTML
         const emailHTML = generateBookingConfirmationEmail(bookingData, bookingId);
-        console.log('📧 Email HTML generated');
         
         // Format date for display
         const dateObj = new Date(bookingData.date);
@@ -209,7 +203,6 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
             }
         };
 
-        console.log('📧 Sending email via EmailJS REST API...');
 
         const sendEmail = (params, label) =>
             fetch('https://api.emailjs.com/api/v1.0/email/send', {
@@ -220,10 +213,7 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
                 body: JSON.stringify(params)
             })
             .then(response => {
-                console.log(`📧 [${label}] API Response:`, response.status);
                 if (response.ok) {
-                    console.log(`✅ [${label}] Email sent successfully!`);
-                    console.log(`📧 [${label}] Email sent to:`, params.template_params.to_email);
                 } else {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -233,13 +223,11 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
         // Stagger the admin send so Gmail is less likely to treat them as related.
         sendEmail(emailParams, 'client').catch((error) => {
             console.error('❌ Error sending client email:', error);
-            console.log('Error details:', error.message);
         });
 
         setTimeout(() => {
             sendEmail(adminEmailParams, 'admin').catch((error) => {
             console.error('❌ Error sending admin notification email:', error);
-            console.log('Error details:', error.message);
             // Store an admin-side pending record so the booking isn't silently lost
             try {
                 const adminPending = JSON.parse(localStorage.getItem('pendingAdminNotifications')) || [];
@@ -257,7 +245,6 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
                     time: bookingData.time
                 });
                 localStorage.setItem('pendingAdminNotifications', JSON.stringify(adminPending));
-                console.log('⚠️ Admin notification stored for manual review');
             } catch (e) {
                 console.error('Could not store admin notification fallback:', e);
             }

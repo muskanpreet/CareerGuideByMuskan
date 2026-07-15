@@ -81,12 +81,10 @@ function saveBooking(bookingData) {
     try {
         // Always use saveBookingHybrid for Firebase sync if available
         if (typeof saveBookingHybrid === 'function') {
-            console.log('saveBooking: Using saveBookingHybrid for Firebase sync');
             return saveBookingHybrid(bookingData);
         }
         
         // Fallback: save to localStorage only
-        console.warn('saveBooking: saveBookingHybrid not available, using localStorage only');
         const booking = {
             id: generateBookingId(),
             ...bookingData,
@@ -128,12 +126,10 @@ function deleteBooking(id) {
         const bookings = getAllBookings();
         const filtered = bookings.filter(booking => booking.id !== id);
         localStorage.setItem(BOOKINGS_KEY, JSON.stringify(filtered));
-        console.log('deleteBooking: Deleted from localStorage:', id);
         
         // Delete from Firebase if available
         if (typeof deleteBookingFromFirebase === 'function') {
             deleteBookingFromFirebase(id);
-            console.log('deleteBooking: Deleted from Firebase:', id);
         }
         
         return true;
@@ -190,7 +186,6 @@ function getBookingStats() {
 function isSlotAvailable(date, time) {
     const bookings = getBookingsByDate(date);
     const isAvailable = !bookings.some(booking => booking.time === time);
-    console.log('isSlotAvailable:', { date, time, available: isAvailable, bookedCount: bookings.length });
     return isAvailable;
 }
 
