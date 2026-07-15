@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - CareerGuide</title>
     <link rel="icon" type="image/png" href="images/Copilot_20251212_152721.png">
     <link rel="stylesheet" href="styles.css">
@@ -176,14 +176,6 @@
         </div>
     </div>
 
-    <!-- New Year Offer Banner -->
-    <div class="new-year-banner show" id="newYearBanner">
-        <button class="close-banner" onclick="closeBanner()">&times;</button>
-        <h2>🎉 New Year Special Offer! 🎉</h2>
-        <p>Celebrate 2025 with <span class="banner-highlight">FREE Career Guidance Sessions</span></p>
-        <p style="font-size: 0.95rem; opacity: 0.9;">Limited time offer - Book your free session today!</p>
-    </div>
-
     <!-- Admin Dashboard Content -->
     <div class="admin-content" id="adminContent">
     <div class="admin-container">
@@ -192,9 +184,60 @@
             <p>Manage your career guidance bookings</p>
         </div>
 
+        <!-- Slot Calendar & Bulk Block -->
+        <div class="slot-calendar-panel">
+            <div class="calendar-header">
+                <h3>📅 Slot Calendar</h3>
+                <div class="calendar-nav">
+                    <button class="btn-small btn-refresh" onclick="calendarPrevMonth()"><i class="fas fa-chevron-left"></i></button>
+                    <span id="calendarMonthLabel" class="calendar-month-label">—</span>
+                    <button class="btn-small btn-refresh" onclick="calendarNextMonth()"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            <div class="calendar-legend">
+                <span><span class="dot dot-available"></span> Available</span>
+                <span><span class="dot dot-partial"></span> Some booked</span>
+                <span><span class="dot dot-full"></span> Fully booked/blocked</span>
+                <span><span class="dot dot-past"></span> Past</span>
+            </div>
+            <div class="calendar-grid-wrap">
+                <div class="calendar-weekdays">
+                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                </div>
+                <div id="calendarGrid" class="calendar-grid"></div>
+            </div>
+            <div id="slotPanel" class="slot-panel" style="display:none;">
+                <div class="slot-panel-header">
+                    <h4 id="slotPanelTitle">Select a date</h4>
+                    <div class="slot-panel-actions">
+                        <button type="button" class="btn-small btn-refresh" onclick="selectAllAvailableSlots()"><i class="fas fa-check-double"></i> Select all available</button>
+                        <button type="button" class="btn-small btn-refresh" onclick="clearSelectedSlots()"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                </div>
+                <div id="slotList" class="slot-list"></div>
+            </div>
+            <div id="bulkBlockBar" class="bulk-block-bar" style="display:none;">
+                <div class="bulk-block-info">
+                    <span id="bulkBlockCount">0 slots selected</span>
+                    <input type="text" id="bulkBlockReason" placeholder="Reason (optional)" class="bulk-reason-input">
+                </div>
+                <button type="button" class="btn-block" onclick="handleBulkBlock()"><i class="fas fa-lock"></i> Block selected slots</button>
+            </div>
+        </div>
+
+        <!-- Pending Admin Notifications (fallback when EmailJS fails) -->
+        <div id="pendingAdminSection" class="pending-admin-panel" style="display:none;">
+            <div class="pending-admin-header">
+                <h3>🔔 Unsent admin notifications <span id="pendingAdminBadge" class="pending-badge">0</span></h3>
+                <button class="btn-small btn-refresh" onclick="renderPendingAdmin()"><i class="fas fa-sync-alt"></i> Refresh</button>
+            </div>
+            <p style="color:#64748b; font-size:0.875rem; margin: 0 0 12px 0;">These bookings were saved successfully, but the email notification to you failed to send. Review them below.</p>
+            <div id="pendingAdminList" class="pending-admin-list"></div>
+        </div>
+
         <!-- Block Slot Form -->
         <div class="block-slot-form">
-            <h3 style="margin-bottom: 16px;">🚫 Block Time Slot</h3>
+            <h3 style="margin-bottom: 16px;">🚫 Quick Block (single slot)</h3>
             <form id="blockSlotForm" onsubmit="handleBlockSlot(event)">
                 <div class="form-row">
                     <div class="form-group-inline">
@@ -231,11 +274,11 @@
                 <div class="value" id="totalBookings">0</div>
             </div>
             <div class="stat-card">
-                <h3>🎉 Quick Sessions (FREE)</h3>
+                <h3>Quick Sessions (₹199)</h3>
                 <div class="value" id="quickSessions">0</div>
             </div>
             <div class="stat-card">
-                <h3>💎 Detailed Sessions (₹49)</h3>
+                <h3>Detailed Sessions (₹299)</h3>
                 <div class="value" id="detailedSessions">0</div>
             </div>
             <div class="stat-card">
@@ -249,6 +292,7 @@
             <div class="table-header">
                 <h2>All Bookings</h2>
                 <div class="table-actions">
+                    <input type="text" id="bookingsSearch" class="bookings-search" placeholder="🔍 Search name, email, phone, ID..." oninput="filterBookingsTable()">
                     <button class="btn-small btn-refresh" onclick="loadDashboard()">
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
@@ -357,7 +401,7 @@
         // Helper function to determine session price
         function getSessionPrice(sessionType) {
             const isQuickSession = sessionType.toLowerCase().includes('30') || sessionType.toLowerCase().includes('quick');
-            return isQuickSession ? 0 : 49; // FREE (0) for quick, 49 for detailed
+            return isQuickSession ? 199 : 299; // ₹199 for 30min, ₹299 for 60min
         }
 
         // Helper function to get session display name
@@ -365,8 +409,8 @@
             if (sessionType === 'blocked') {
                 return '⛔ Blocked';
             }
-            const priceText = price === 0 ? 'FREE' : `₹${price}`;
-            const isQuickSession = price === 0;
+            const priceText = `₹${price}`;
+            const isQuickSession = price === 199;
             const sessionName = isQuickSession ? '30 min' : '60 min';
             return `${sessionName} (${priceText})`;
         }
@@ -397,14 +441,14 @@
                         stats.blockedSlots++;
                     } else {
                         const price = getSessionPrice(b.sessionType);
-                        const isQuickSession = price === 0;
+                        const isQuickSession = price === 199;
                         
                         if (isQuickSession) {
                             stats.quickSessions++;
                         } else {
                             stats.detailedSessions++;
-                            stats.totalRevenue += price; // Only add revenue for paid sessions
                         }
+                        stats.totalRevenue += price;
                     }
                 });
 
@@ -451,8 +495,8 @@
                         <tbody>
                             ${bookings.reverse().map(booking => {
                                 const price = getSessionPrice(booking.sessionType);
-                                const priceDisplay = booking.sessionType === 'blocked' ? 'N/A' : (price === 0 ? '🎉 FREE' : `₹${price}`);
-                                const sessionDisplay = booking.sessionType === 'blocked' ? 'Blocked Slot' : (price === 0 ? '30 min' : '60 min');
+                                const priceDisplay = booking.sessionType === 'blocked' ? 'N/A' : `₹${price}`;
+                                const sessionDisplay = booking.sessionType === 'blocked' ? 'Blocked Slot' : (price === 199 ? '30 min' : '60 min');
                                 const detailsText = booking.message ? booking.message.substring(0, 50) + (booking.message.length > 50 ? '...' : '') : 'N/A';
                                 
                                 return `
@@ -505,6 +549,7 @@
             if (confirm('Are you sure you want to delete this booking?')) {
                 deleteBooking(id);
                 loadDashboard();
+                renderCalendar();
             }
         }
 
@@ -516,22 +561,34 @@
             const time = document.getElementById('blockTime').value;
             const reason = document.getElementById('blockReason').value || 'Admin blocked';
             
-            // Check if already booked or blocked
-            if (!isSlotAvailable(date, time)) {
-                alert('This slot is already booked or blocked!');
-                return;
-            }
-            
-            // Block the slot
-            const result = blockTimeSlot(date, time, reason);
-            
-            if (result) {
-                alert('✅ Time slot blocked successfully!');
-                document.getElementById('blockSlotForm').reset();
-                loadDashboard();
-            } else {
-                alert('❌ Error blocking slot. Please try again.');
-            }
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            if (submitBtn) submitBtn.disabled = true;
+
+            const performBlock = () => {
+                const result = blockTimeSlot(date, time, reason);
+                if (result) {
+                    alert('✅ Time slot blocked successfully!');
+                    document.getElementById('blockSlotForm').reset();
+                    loadDashboard();
+                    renderCalendar();
+                } else {
+                    alert('❌ Error blocking slot. Please try again.');
+                }
+                if (submitBtn) submitBtn.disabled = false;
+            };
+
+            const check = (typeof isSlotAvailableFirebase === 'function')
+                ? isSlotAvailableFirebase(date, time)
+                : Promise.resolve(isSlotAvailable(date, time));
+
+            check.then((available) => {
+                if (!available) {
+                    alert('This slot is already booked or blocked (Firebase check)!');
+                    if (submitBtn) submitBtn.disabled = false;
+                    return;
+                }
+                performBlock();
+            });
         }
 
         // Handle unblock
@@ -540,7 +597,304 @@
                 deleteBooking(id);
                 alert('✅ Time slot unblocked!');
                 loadDashboard();
+                renderCalendar();
             }
+        }
+
+        // ============================
+        // Bookings search filter (DOM-level, no refetch)
+        // ============================
+        function filterBookingsTable() {
+            const q = (document.getElementById('bookingsSearch').value || '').trim().toLowerCase();
+            const rows = document.querySelectorAll('#tableContainer table tbody tr');
+            rows.forEach(row => {
+                if (!q) { row.style.display = ''; return; }
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        // ============================
+        // Pending Admin Notifications (fallback when EmailJS send fails)
+        // ============================
+        function getPendingAdminNotifications() {
+            try {
+                return JSON.parse(localStorage.getItem('pendingAdminNotifications')) || [];
+            } catch (e) { return []; }
+        }
+
+        function renderPendingAdmin() {
+            const list = getPendingAdminNotifications();
+            const section = document.getElementById('pendingAdminSection');
+            const listEl = document.getElementById('pendingAdminList');
+            const badge = document.getElementById('pendingAdminBadge');
+            if (!section || !listEl || !badge) return;
+
+            badge.textContent = list.length;
+            if (list.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = 'block';
+            listEl.innerHTML = list.map((n, idx) => `
+                <div class="pending-admin-item">
+                    <div class="pending-admin-meta">
+                        <div><strong>${escapeHtml(n.customerName || 'Unknown')}</strong> · ${escapeHtml(n.customerEmail || '')} · ${escapeHtml(n.customerPhone || '')}</div>
+                        <div class="pending-admin-sub">${escapeHtml(n.sessionType || '')} · ${escapeHtml(n.date || '')} ${escapeHtml(n.time || '')} · ID: ${escapeHtml(n.bookingId || '')}</div>
+                        <div class="pending-admin-sub">Failed at: ${escapeHtml(n.timestamp || '')}</div>
+                    </div>
+                    <div class="pending-admin-actions">
+                        <button class="btn-small btn-refresh" onclick="copyPendingAdmin(${idx})"><i class="fas fa-copy"></i> Copy HTML</button>
+                        <button class="btn-small btn-export" onclick="downloadPendingAdmin(${idx})"><i class="fas fa-download"></i> Download</button>
+                        <button class="btn-small btn-delete" onclick="dismissPendingAdmin(${idx})"><i class="fas fa-times"></i> Dismiss</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function copyPendingAdmin(idx) {
+            const list = getPendingAdminNotifications();
+            const item = list[idx];
+            if (!item) return;
+            navigator.clipboard.writeText(item.html).then(() => alert('HTML copied to clipboard'));
+        }
+
+        function downloadPendingAdmin(idx) {
+            const list = getPendingAdminNotifications();
+            const item = list[idx];
+            if (!item) return;
+            const a = document.createElement('a');
+            a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(item.html);
+            a.download = `admin-notification-${item.bookingId || 'booking'}.html`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+
+        function dismissPendingAdmin(idx) {
+            if (!confirm('Dismiss this notification?')) return;
+            const list = getPendingAdminNotifications();
+            list.splice(idx, 1);
+            localStorage.setItem('pendingAdminNotifications', JSON.stringify(list));
+            renderPendingAdmin();
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        // ============================
+        // Slot Calendar & Bulk Block
+        // ============================
+        const SLOT_TIMES = [
+            { value: '18:00', label: '6:00 PM' },
+            { value: '18:30', label: '6:30 PM' },
+            { value: '19:00', label: '7:00 PM' },
+            { value: '19:30', label: '7:30 PM' },
+            { value: '20:00', label: '8:00 PM' },
+            { value: '20:30', label: '8:30 PM' },
+            { value: '21:00', label: '9:00 PM' },
+            { value: '21:30', label: '9:30 PM' }
+        ];
+        let calendarState = {
+            year: new Date().getFullYear(),
+            month: new Date().getMonth(), // 0-based
+            selectedDate: null,          // 'YYYY-MM-DD'
+            bookings: [],
+            selectedSlots: new Set()      // 'YYYY-MM-DD|HH:MM'
+        };
+
+        function initCalendar() {
+            const now = new Date();
+            calendarState.year = now.getFullYear();
+            calendarState.month = now.getMonth();
+            renderCalendar();
+        }
+
+        function calendarPrevMonth() {
+            calendarState.month--;
+            if (calendarState.month < 0) { calendarState.month = 11; calendarState.year--; }
+            renderCalendar();
+        }
+        function calendarNextMonth() {
+            calendarState.month++;
+            if (calendarState.month > 11) { calendarState.month = 0; calendarState.year++; }
+            renderCalendar();
+        }
+
+        function pad2(n) { return n < 10 ? '0' + n : '' + n; }
+        function dateKey(y, m, d) { return `${y}-${pad2(m + 1)}-${pad2(d)}`; }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const label = document.getElementById('calendarMonthLabel');
+            if (!grid || !label) return;
+
+            const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+            label.textContent = `${monthNames[calendarState.month]} ${calendarState.year}`;
+
+            // Fetch bookings then render
+            if (typeof getAllBookingsFromFirebase === 'function') {
+                getAllBookingsFromFirebase(function(bookings) {
+                    calendarState.bookings = bookings || [];
+                    drawCalendarGrid();
+                    if (calendarState.selectedDate) drawSlotPanel(calendarState.selectedDate);
+                });
+            } else {
+                calendarState.bookings = (typeof getAllBookings === 'function') ? getAllBookings() : [];
+                drawCalendarGrid();
+                if (calendarState.selectedDate) drawSlotPanel(calendarState.selectedDate);
+            }
+        }
+
+        function drawCalendarGrid() {
+            const grid = document.getElementById('calendarGrid');
+            const { year, month } = calendarState;
+            const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date(); today.setHours(0,0,0,0);
+
+            // Build per-date slot status counts
+            const dateCounts = {}; // key -> { booked: n, blocked: n }
+            calendarState.bookings.forEach(b => {
+                if (!b || !b.date) return;
+                if (!dateCounts[b.date]) dateCounts[b.date] = { booked: 0, blocked: 0 };
+                if (b.sessionType === 'blocked') dateCounts[b.date].blocked++;
+                else dateCounts[b.date].booked++;
+            });
+
+            let html = '';
+            for (let i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const key = dateKey(year, month, d);
+                const cellDate = new Date(year, month, d); cellDate.setHours(0,0,0,0);
+                const isPast = cellDate < today;
+                const isToday = cellDate.getTime() === today.getTime();
+                const c = dateCounts[key] || { booked: 0, blocked: 0 };
+                const used = c.booked + c.blocked;
+                let statusClass = 'cal-available';
+                if (isPast) statusClass = 'cal-past';
+                else if (used >= SLOT_TIMES.length) statusClass = 'cal-full';
+                else if (used > 0) statusClass = 'cal-partial';
+                const selectedClass = (calendarState.selectedDate === key) ? ' cal-selected' : '';
+                const todayClass = isToday ? ' cal-today' : '';
+                const summary = used > 0 ? `<span class="cal-count">${used}/${SLOT_TIMES.length}</span>` : '';
+                html += `<div class="cal-cell ${statusClass}${selectedClass}${todayClass}" onclick="selectCalendarDate('${key}')">
+                    <span class="cal-day">${d}</span>${summary}
+                </div>`;
+            }
+            grid.innerHTML = html;
+        }
+
+        function selectCalendarDate(key) {
+            calendarState.selectedDate = key;
+            drawCalendarGrid();
+            drawSlotPanel(key);
+        }
+
+        function drawSlotPanel(dateStr) {
+            const panel = document.getElementById('slotPanel');
+            const title = document.getElementById('slotPanelTitle');
+            const listEl = document.getElementById('slotList');
+            if (!panel || !title || !listEl) return;
+
+            panel.style.display = 'block';
+            const d = new Date(dateStr + 'T00:00:00');
+            title.textContent = d.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+            // Determine status per slot for this date
+            const byDate = calendarState.bookings.filter(b => b && b.date === dateStr);
+            const statusFor = (time) => {
+                const hit = byDate.find(b => b.time === time);
+                if (!hit) return { status: 'available' };
+                if (hit.sessionType === 'blocked') return { status: 'blocked', id: hit.id, reason: hit.message };
+                return { status: 'booked', id: hit.id, name: hit.name };
+            };
+
+            listEl.innerHTML = SLOT_TIMES.map(s => {
+                const info = statusFor(s.value);
+                const key = `${dateStr}|${s.value}`;
+                const isSelected = calendarState.selectedSlots.has(key);
+                let right = '';
+                let cls = 'slot-item slot-' + info.status;
+                if (info.status === 'available') {
+                    right = `<label class="slot-check"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleSlotSelect('${dateStr}','${s.value}', this.checked)"> Select</label>`;
+                } else if (info.status === 'booked') {
+                    right = `<span class="slot-tag slot-tag-booked">Booked · ${escapeHtml(info.name || '')}</span>`;
+                } else if (info.status === 'blocked') {
+                    right = `<span class="slot-tag slot-tag-blocked">Blocked</span>
+                             <button class="btn-small btn-unblock" onclick="handleUnblock('${info.id}','${dateStr}','${s.value}')"><i class="fas fa-unlock"></i> Unblock</button>`;
+                }
+                return `<div class="${cls}">
+                    <span class="slot-time">${s.label}</span>
+                    <span class="slot-right">${right}</span>
+                </div>`;
+            }).join('');
+
+            updateBulkBar();
+        }
+
+        function toggleSlotSelect(dateStr, time, checked) {
+            const key = `${dateStr}|${time}`;
+            if (checked) calendarState.selectedSlots.add(key);
+            else calendarState.selectedSlots.delete(key);
+            updateBulkBar();
+        }
+
+        function selectAllAvailableSlots() {
+            const dateStr = calendarState.selectedDate;
+            if (!dateStr) return;
+            const byDate = calendarState.bookings.filter(b => b && b.date === dateStr);
+            const taken = new Set(byDate.map(b => b.time));
+            SLOT_TIMES.forEach(s => {
+                if (!taken.has(s.value)) calendarState.selectedSlots.add(`${dateStr}|${s.value}`);
+            });
+            drawSlotPanel(dateStr);
+        }
+
+        function clearSelectedSlots() {
+            calendarState.selectedSlots.clear();
+            if (calendarState.selectedDate) drawSlotPanel(calendarState.selectedDate);
+            else updateBulkBar();
+        }
+
+        function updateBulkBar() {
+            const bar = document.getElementById('bulkBlockBar');
+            const count = document.getElementById('bulkBlockCount');
+            if (!bar || !count) return;
+            const n = calendarState.selectedSlots.size;
+            if (n === 0) { bar.style.display = 'none'; return; }
+            bar.style.display = 'flex';
+            count.textContent = `${n} slot${n === 1 ? '' : 's'} selected`;
+        }
+
+        function handleBulkBlock() {
+            const slots = Array.from(calendarState.selectedSlots);
+            if (slots.length === 0) return;
+            const reason = (document.getElementById('bulkBlockReason').value || '').trim() || 'Admin blocked';
+            if (!confirm(`Block ${slots.length} slot(s)?`)) return;
+
+            const checker = (typeof isSlotAvailableFirebase === 'function')
+                ? (date, time) => isSlotAvailableFirebase(date, time)
+                : (date, time) => Promise.resolve(isSlotAvailable(date, time));
+
+            // Run all availability checks in parallel, then block only the ones still free
+            const checks = slots.map(k => {
+                const [date, time] = k.split('|');
+                return checker(date, time).then(available => ({ date, time, available }));
+            });
+
+            Promise.all(checks).then(results => {
+                let ok = 0, fail = 0, skipped = 0;
+                results.forEach(({ date, time, available }) => {
+                    if (!available) { skipped++; return; }
+                    const res = (typeof blockTimeSlot === 'function') ? blockTimeSlot(date, time, reason) : null;
+                    if (res) ok++; else fail++;
+                });
+                alert(`Blocked: ${ok}` + (skipped ? ` · Skipped (already taken): ${skipped}` : '') + (fail ? ` · Failed: ${fail}` : ''));
+                calendarState.selectedSlots.clear();
+                document.getElementById('bulkBlockReason').value = '';
+                loadDashboard();
+                renderCalendar();
+            });
         }
 
         // Set minimum date to today for block form
@@ -554,12 +908,16 @@
         setTimeout(function() {
             console.log('Admin: Initial dashboard load after Firebase init');
             loadDashboard();
+            renderPendingAdmin();
+            initCalendar();
         }, 500);
 
         // Auto-refresh every 10 seconds
         setInterval(function() {
             console.log('Admin: Auto-refresh interval triggered');
             loadDashboard();
+            renderPendingAdmin();
+            renderCalendar();
         }, 10000);
 
         // Check if banner should be hidden

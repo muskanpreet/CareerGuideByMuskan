@@ -42,114 +42,80 @@ function generateBookingConfirmationEmail(bookingData, bookingId) {
     const isQuickSession = bookingData.sessionType === '30min';
     const amount = isQuickSession ? '₹199' : '₹299';
     
-    const emailHTML = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Session Booking Confirmation</title>
-            <style>
-                body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f5f7fa; margin: 0; padding: 20px; }
-                .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
-                .header h1 { margin: 0; font-size: 24px; }
-                .body { padding: 30px 25px; }
-                .section { margin: 25px 0; }
-                .section-title { color: #2c3e50; font-size: 15px; font-weight: 700; margin-bottom: 18px; border-bottom: 2px solid #667eea; padding-bottom: 12px; }
-                .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5; }
-                .detail-label { color: #667eea; font-weight: 600; }
-                .detail-value { color: #2c3e50; text-align: right; }
-                .amount-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 6px; text-align: center; margin: 20px 0; }
-                .amount-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
-                .amount { font-size: 32px; font-weight: 700; }
-                .upi-info { background: #f8f9fb; padding: 15px; border-radius: 6px; margin: 15px 0; font-size: 13px; }
-                .upi-info strong { display: block; color: #667eea; margin-bottom: 5px; }
-                .notes { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; border-radius: 4px; margin: 20px 0; font-size: 13px; color: #856404; }
-                .notes strong { display: block; margin-bottom: 8px; }
-                .notes ul { margin: 10px 0 0 20px; padding: 0; }
-                .notes li { margin: 5px 0; }
-                .footer { background: #2c3e50; color: #ecf0f1; padding: 25px; text-align: center; font-size: 12px; }
-                .footer p { margin: 5px 0; }
-                .footer strong { display: block; margin-bottom: 10px; }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <div class="header">
-                    <h1>✅ Your Session is Confirmed!</h1>
-                </div>
-                
-                <div class="body">
-                    <p style="color: #555; font-size: 16px; margin: 0 0 20px 0;">Hi <strong>${bookingData.name}</strong>,</p>
-                    
-                    <p style="color: #666; font-size: 14px; line-height: 1.6;">Thank you for booking a session with CareerGuide! We're excited to help you advance your career. Your session has been successfully confirmed.</p>
-                    
-                    <div class="section">
-                        <div class="section-title">📋 YOUR SESSION DETAILS</div>
-                        <div class="detail-row">
-                            <span class="detail-label">Session Type:</span>
-                            <span class="detail-value">${bookingData.sessionType}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Date:</span>
-                            <span class="detail-value">${formattedDate}</span>
-                        </div>
-                        <div class="detail-row">
-                            <span class="detail-label">Time:</span>
-                            <span class="detail-value">${bookingData.time} IST</span>
-                        </div>
-                        <div class="detail-row" style="border-bottom: none;">
-                            <span class="detail-label">Phone:</span>
-                            <span class="detail-value">${bookingData.phone}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="section">
-                        <div class="section-title">💰 PAYMENT DETAILS</div>
-                        <div class="amount-box">
-                            <div class="amount-label">Amount Due</div>
-                            <div class="amount">${amount}</div>
-                        </div>
-                        ${amount === 'FREE' ? '<p style="text-align: center; color: #27ae60; font-weight: 600;">🎉 This session is FREE!</p>' : ''}
-                    </div>
-                    
-                    ${amount !== 'FREE' ? `
-                    <div class="upi-info">
-                        <strong>UPI ID:</strong> oshinkaur175@oksbi<br>
-                        <strong style="margin-top: 8px;">Name:</strong> Muskanpreet Kaur
-                    </div>
-                    ` : ''}
-                    
-                    <div class="notes">
-                        <strong>⚠️ IMPORTANT NOTES</strong>
-                        <ul>
-                            ${amount !== 'FREE' ? '<li>Please complete payment within 24 hours to secure your slot.</li>' : ''}
-                            <li>You can cancel or reschedule up to 24 hours before the session.</li>
-                            <li>Ensure you have a stable internet connection and a quiet environment.</li>
-                            <li>The Google Meet link will be shared 1 hour before the session starts.</li>
-                            <li>This is a one-on-one personalized session tailored to your needs.</li>
-                        </ul>
-                    </div>
-                    
-                    <p style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 25px;">If you have any questions or need to reschedule, feel free to reach out via email.</p>
-                    
-                    <p style="color: #2c3e50; font-size: 15px; font-weight: 600; margin-top: 20px;">We look forward to chatting with you! 💪</p>
-                </div>
-                
-                <div class="footer">
-                    <strong>Muskanpreet Kaur</strong>
-                    <p>Career Guidance Consultant<br>Microsoft Azure Team</p>
-                    <p style="margin-top: 15px; border-top: 1px solid #34495e; padding-top: 15px;">
-                        📧 muskanpreet175@gmail.com<br>
-                        🌐 careerguidebymuskan.netlify.app
-                    </p>
-                    <p style="margin-top: 15px; opacity: 0.7;">© 2025 CareerGuide. All rights reserved.</p>
-                </div>
+    const emailHTML = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Session booked</title></head>
+<body style="margin:0; padding:24px 12px; background:#f6f8fb; font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; color:#1e293b; line-height:1.55;">
+    <div style="max-width:560px; margin:0 auto; background:#ffffff; border-radius:12px; overflow:hidden; border:1px solid #e6ebf2;">
+
+        <!-- Header strip -->
+        <div style="background:#2563eb; padding:20px 24px;">
+            <div style="color:#dbeafe; font-size:12px; font-weight:600; letter-spacing:1px; text-transform:uppercase;">CareerGuide</div>
+            <div style="color:#ffffff; font-size:20px; font-weight:600; margin-top:4px;">You're booked in 🎯</div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:24px;">
+            <p style="font-size:15px; margin:0 0 14px 0;">Hi ${bookingData.name},</p>
+            <p style="font-size:15px; margin:0 0 20px 0; color:#475569;">Thanks for booking a session with me. Here's a quick summary — save this email so you have it handy on the day.</p>
+
+            <!-- Booking card -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 18px; margin:0 0 22px 0;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <tr>
+                        <td style="padding:6px 0; color:#64748b; width:110px;">Session</td>
+                        <td style="padding:6px 0; font-weight:600;">${bookingData.sessionType === '30min' ? '30-minute quick session' : '60-minute detailed session'}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748b;">Date</td>
+                        <td style="padding:6px 0; font-weight:600;">${formattedDate}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748b;">Time</td>
+                        <td style="padding:6px 0; font-weight:600;">${bookingData.time} IST</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748b;">Amount</td>
+                        <td style="padding:6px 0; font-weight:600; color:${amount === 'FREE' ? '#10b981' : '#2563eb'};">${amount}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 0; color:#64748b;">Booking ID</td>
+                        <td style="padding:6px 0; font-family:monospace; font-size:12px; color:#475569;">${bookingId}</td>
+                    </tr>
+                </table>
             </div>
-        </body>
-        </html>
-    `;
+
+            ${amount !== 'FREE' ? `
+            <!-- Payment -->
+            <div style="margin:0 0 22px 0;">
+                <div style="font-size:13px; font-weight:600; color:#0f172a; margin:0 0 8px 0;">Payment</div>
+                <p style="font-size:14px; margin:0 0 4px 0;">UPI: <strong style="color:#2563eb;">oshinkaur175@oksbi</strong></p>
+                <p style="font-size:14px; margin:0 0 12px 0; color:#64748b;">Name: Muskanpreet Kaur</p>
+                <img src="https://careerguidebymuskan.netlify.app/images/qrcode.png" alt="UPI QR" width="160" height="160" style="display:block; border:1px solid #e2e8f0; border-radius:8px; padding:6px; background:#ffffff;" />
+                <p style="font-size:12px; color:#64748b; margin:8px 0 0 0;">Scan with GPay, PhonePe or any UPI app.</p>
+            </div>
+            ` : `
+            <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; border-radius:8px; padding:12px 14px; margin:0 0 22px 0; font-size:14px;">
+                🎉 This session is on the house — nothing to pay.
+            </div>
+            `}
+
+            <!-- What next -->
+            <div style="font-size:13px; font-weight:600; color:#0f172a; margin:0 0 8px 0;">What happens next</div>
+            <ul style="margin:0 0 20px 20px; padding:0; font-size:14px; color:#334155;">
+                <li style="margin:4px 0;">I'll send you a Google Meet link before your session starts.</li>
+                <li style="margin:4px 0;">Feel free to jot down anything you'd like to discuss.</li>
+                <li style="margin:4px 0;">Need to reschedule or ask something? Just reply to this email.</li>
+            </ul>
+
+            <p style="font-size:14px; margin:0; color:#334155;">See you soon,<br><strong>Muskanpreet</strong></p>
+        </div>
+
+        <!-- Small footer -->
+        <div style="padding:14px 24px; border-top:1px solid #eef2f7; font-size:12px; color:#94a3b8;">
+            CareerGuide by Muskanpreet · Reply to this email anytime.
+        </div>
+    </div>
+</body></html>`;
     
     return emailHTML;
 }
@@ -182,7 +148,34 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
         const isQuickSession = bookingData.sessionType === '30min';
         const amount = isQuickSession ? '₹199' : '₹299';
         
-        // Prepare email parameters
+        // Admin notification email (sent to owner so bookings are visible)
+        const ADMIN_EMAIL = 'oshinkaur175@gmail.com';
+
+        // Build a compact, distinct admin summary — deliberately different from the
+        // customer HTML so Gmail doesn't dedupe/spam-drop it as a near-duplicate,
+        // and so it's actually useful in the inbox at a glance.
+        const adminHTML = `
+        <!DOCTYPE html><html><body style="font-family: -apple-system, Segoe UI, Arial, sans-serif; background:#f5f7fa; padding:20px; margin:0; color:#1e293b;">
+            <div style="max-width:560px; margin:0 auto; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; overflow:hidden;">
+                <div style="background:#2563eb; color:#fff; padding:16px 20px;">
+                    <div style="font-size:12px; opacity:0.85; letter-spacing:0.5px;">NEW BOOKING</div>
+                    <div style="font-size:18px; font-weight:600; margin-top:2px;">${bookingData.name}</div>
+                </div>
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <tr><td style="padding:10px 20px; color:#64748b; width:120px;">Session</td><td style="padding:10px 20px;"><strong>${bookingData.sessionType}</strong> · ${amount}</td></tr>
+                    <tr><td style="padding:10px 20px; color:#64748b; border-top:1px solid #f1f5f9;">Date &amp; Time</td><td style="padding:10px 20px; border-top:1px solid #f1f5f9;"><strong>${formattedDate}</strong> at <strong>${bookingData.time} IST</strong></td></tr>
+                    <tr><td style="padding:10px 20px; color:#64748b; border-top:1px solid #f1f5f9;">Email</td><td style="padding:10px 20px; border-top:1px solid #f1f5f9;"><a href="mailto:${bookingData.email}" style="color:#2563eb; text-decoration:none;">${bookingData.email}</a></td></tr>
+                    <tr><td style="padding:10px 20px; color:#64748b; border-top:1px solid #f1f5f9;">Phone</td><td style="padding:10px 20px; border-top:1px solid #f1f5f9;"><a href="tel:${bookingData.phone}" style="color:#2563eb; text-decoration:none;">${bookingData.phone}</a></td></tr>
+                    <tr><td style="padding:10px 20px; color:#64748b; border-top:1px solid #f1f5f9; vertical-align:top;">Message</td><td style="padding:10px 20px; border-top:1px solid #f1f5f9; white-space:pre-wrap;">${(bookingData.message || '—').replace(/</g,'&lt;')}</td></tr>
+                    <tr><td style="padding:10px 20px; color:#64748b; border-top:1px solid #f1f5f9;">Booking ID</td><td style="padding:10px 20px; border-top:1px solid #f1f5f9; font-family:monospace; font-size:12px;">${bookingId}</td></tr>
+                </table>
+                <div style="padding:14px 20px; background:#f8fafc; font-size:12px; color:#64748b; border-top:1px solid #e2e8f0;">
+                    Reply to this email to contact the customer directly. Manage all bookings in the admin dashboard.
+                </div>
+            </div>
+        </body></html>`;
+
+        // Prepare email parameters (client confirmation)
         const emailParams = {
             service_id: EMAIL_CONFIG.SERVICE_ID,
             template_id: EMAIL_CONFIG.TEMPLATE_ID,
@@ -190,114 +183,89 @@ function sendBookingConfirmationEmail(bookingData, bookingId) {
             template_params: {
                 to_email: bookingData.email,
                 to_name: bookingData.name,
-                subject: '✅ Your CareerGuide Session is Confirmed!',
+                subject: `Your session on ${formattedDate} at ${bookingData.time}`,
                 html_message: emailHTML,
                 from_name: 'Muskanpreet Kaur',
-                from_email: 'muskanpreet175@gmail.com'
+                from_email: 'muskanpreet175@gmail.com',
+                reply_to: 'muskanpreet175@gmail.com'
             }
         };
-        
-        console.log('📧 Sending email via EmailJS REST API...');
-        
-        // Send email using EmailJS REST API
-        fetch('https://api.emailjs.com/api/v1.0/email/send', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(emailParams)
-        })
-        .then(response => {
-            console.log('📧 API Response:', response.status);
-            if (response.ok) {
-                console.log('✅ Email sent successfully!');
-                console.log('📧 Email sent to:', bookingData.email);
-            } else {
-                throw new Error(`HTTP error! status: ${response.status}`);
+
+        // Prepare admin notification parameters — distinct HTML + subject to avoid
+        // Gmail treating it as a duplicate of the customer email
+        const adminEmailParams = {
+            service_id: EMAIL_CONFIG.SERVICE_ID,
+            template_id: EMAIL_CONFIG.TEMPLATE_ID,
+            user_id: EMAIL_CONFIG.PUBLIC_KEY,
+            template_params: {
+                to_email: ADMIN_EMAIL,
+                to_name: 'CareerGuide Admin',
+                subject: `[Booking] ${bookingData.name} · ${formattedDate} ${bookingData.time} · ${amount}`,
+                html_message: adminHTML,
+                from_name: 'CareerGuide Bookings',
+                from_email: 'muskanpreet175@gmail.com',
+                // Lets you reply directly to the customer from Gmail
+                reply_to: bookingData.email
             }
-        })
-        .catch((error) => {
-            console.error('❌ Error sending email:', error);
+        };
+
+        console.log('📧 Sending email via EmailJS REST API...');
+
+        const sendEmail = (params, label) =>
+            fetch('https://api.emailjs.com/api/v1.0/email/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => {
+                console.log(`📧 [${label}] API Response:`, response.status);
+                if (response.ok) {
+                    console.log(`✅ [${label}] Email sent successfully!`);
+                    console.log(`📧 [${label}] Email sent to:`, params.template_params.to_email);
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            });
+
+        // Send both emails independently so one failing doesn't block the other.
+        // Stagger the admin send so Gmail is less likely to treat them as related.
+        sendEmail(emailParams, 'client').catch((error) => {
+            console.error('❌ Error sending client email:', error);
             console.log('Error details:', error.message);
-            // If EmailJS fails, store for manual sending
-            storeEmailForManualSending(bookingData, bookingId, emailHTML);
-            console.log('⚠️ Email stored for manual sending');
         });
+
+        setTimeout(() => {
+            sendEmail(adminEmailParams, 'admin').catch((error) => {
+            console.error('❌ Error sending admin notification email:', error);
+            console.log('Error details:', error.message);
+            // Store an admin-side pending record so the booking isn't silently lost
+            try {
+                const adminPending = JSON.parse(localStorage.getItem('pendingAdminNotifications')) || [];
+                adminPending.push({
+                    to: ADMIN_EMAIL,
+                    subject: adminEmailParams.template_params.subject,
+                    html: adminHTML,
+                    timestamp: new Date().toISOString(),
+                    bookingId: bookingId,
+                    customerName: bookingData.name,
+                    customerEmail: bookingData.email,
+                    customerPhone: bookingData.phone,
+                    sessionType: bookingData.sessionType,
+                    date: bookingData.date,
+                    time: bookingData.time
+                });
+                localStorage.setItem('pendingAdminNotifications', JSON.stringify(adminPending));
+                console.log('⚠️ Admin notification stored for manual review');
+            } catch (e) {
+                console.error('Could not store admin notification fallback:', e);
+            }
+        });
+        }, 700);
         
     } catch (error) {
         console.error('❌ Error in sendBookingConfirmationEmail:', error);
     }
-}
-
-/**
- * Get pending emails (for admin dashboard)
- */
-function getPendingEmails() {
-    return JSON.parse(localStorage.getItem('pendingEmails')) || [];
-}
-
-/**
- * Store email for manual sending (fallback)
- */
-function storeEmailForManualSending(bookingData, bookingId, emailHTML) {
-    const emailData = {
-        to: bookingData.email,
-        subject: `✅ Your CareerGuide Session is Confirmed!`,
-        html: emailHTML,
-        timestamp: new Date().toISOString(),
-        bookingId: bookingId,
-        customerName: bookingData.name,
-        customerEmail: bookingData.email
-    };
-    
-    let pendingEmails = JSON.parse(localStorage.getItem('pendingEmails')) || [];
-    pendingEmails.push(emailData);
-    localStorage.setItem('pendingEmails', JSON.stringify(pendingEmails));
-}
-
-/**
- * Download email as HTML file for easy sending
- */
-function downloadEmailAsHTML(bookingId) {
-    const emails = getPendingEmails();
-    const email = emails.find(e => e.bookingId === bookingId);
-    
-    if (!email) {
-        console.error('Email not found for booking ID:', bookingId);
-        alert('Email not found');
-        return;
-    }
-    
-    const element = document.createElement('a');
-    element.setAttribute('href', 'data:text/html;charset=utf-8,' + encodeURIComponent(email.html));
-    element.setAttribute('download', `booking-confirmation-${bookingId}.html`);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    console.log('✅ Email downloaded as HTML file');
-}
-
-/**
- * Copy email content to clipboard for pasting in Gmail/Outlook
- */
-function copyEmailToClipboard(bookingId) {
-    const emails = getPendingEmails();
-    const email = emails.find(e => e.bookingId === bookingId);
-    
-    if (!email) {
-        alert('Email not found');
-        return;
-    }
-    
-    // Copy the HTML content
-    navigator.clipboard.writeText(email.html).then(() => {
-        alert('Email HTML copied to clipboard! You can now paste it in your email client.');
-        console.log('✅ Email HTML copied to clipboard');
-    }).catch(err => {
-        console.error('Failed to copy:', err);
-        alert('Failed to copy. Please try again.');
-    });
 }
 

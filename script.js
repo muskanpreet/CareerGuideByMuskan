@@ -145,6 +145,19 @@ document.addEventListener('DOMContentLoaded', function() {
     bookingForm.addEventListener('submit', (e) => {
         e.preventDefault();
         console.log('Form submitted'); // Debug log
+
+        // Prevent double-submission (rapid clicks / double taps)
+        const submitBtn = bookingForm.querySelector('button[type="submit"], input[type="submit"]');
+        if (bookingForm.dataset.submitting === 'true') {
+            console.log('⏳ Submission already in progress, ignoring duplicate');
+            return;
+        }
+        bookingForm.dataset.submitting = 'true';
+        if (submitBtn) submitBtn.disabled = true;
+        const releaseLock = () => {
+            bookingForm.dataset.submitting = 'false';
+            if (submitBtn) submitBtn.disabled = false;
+        };
         
         // Get form data
         const formData = {
@@ -160,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate form
         if (!formData.name || !formData.email || !formData.phone || !formData.sessionType || !formData.date || !formData.time || !formData.message) {
             showNotification('Please fill in all fields', 'error');
+            releaseLock();
             return;
         }
         
@@ -167,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             showNotification('Please enter a valid email address', 'error');
+            releaseLock();
             return;
         }
         
@@ -174,51 +189,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const cleanPhone = formData.phone.replace(/\D/g, '');
         if (cleanPhone.length < 10) {
             showNotification('Please enter a valid phone number', 'error');
+            releaseLock();
             return;
         }
         
         // Check if slot is available
         if (!isSlotAvailable(formData.date, formData.time)) {
             showNotification('This time slot is already booked. Please choose another time.', 'error');
+            releaseLock();
             return;
         }
-        
-        // Save booking to database
-        console.log('📝 BOOKING SUBMISSION START');
-        console.log('Form data:', formData);
-        console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
-        console.log('saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
-        
-        const booking = saveBooking(formData);
-        console.log('Booking saved result:', booking);
-        
-        if (booking) {
-            // Show success message with booking ID
-            showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
-            
-            // Send booking confirmation email
-            if (typeof sendBookingConfirmationEmail === 'function') {
-                sendBookingConfirmationEmail(formData, booking.id);
-                console.log('📧 Booking confirmation email generated for:', formData.email);
+
+        // Firebase-first re-check right before writing, to prevent two devices
+        // from booking the same slot when their localStorage is out of sync.
+        const proceedWithSave = () => {
+            // Save booking to database
+            console.log('📝 BOOKING SUBMISSION START');
+            console.log('Form data:', formData);
+            console.log('Firebase initialized:', typeof window.isFirebaseInitialized !== 'undefined' ? window.isFirebaseInitialized : 'unknown');
+            console.log('saveBookingHybrid available:', typeof saveBookingHybrid === 'function');
+
+            const booking = saveBooking(formData);
+            console.log('Booking saved result:', booking);
+
+            if (booking) {
+                // Show success message with booking ID
+                showNotification(`✅ Booking confirmed! Your booking ID is ${booking.id}. Check your email for details.`, 'success');
+
+                // Send booking confirmation email
+                if (typeof sendBookingConfirmationEmail === 'function') {
+                    sendBookingConfirmationEmail(formData, booking.id);
+                    console.log('📧 Booking confirmation email generated for:', formData.email);
+                }
+
+                // Log booking stats
+                const stats = getBookingStats();
+                console.log('Booking stats:', stats);
+
+                // Reset form
+                bookingForm.reset();
+
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                console.log('📝 BOOKING SUBMISSION END - SUCCESS');
+
+                // Refresh my bookings display
+                displayMyBookings();
+                releaseLock();
+            } else {
+                console.error('❌ Failed to save booking');
+                showNotification('Error processing booking. Please try again.', 'error');
+                console.log('📝 BOOKING SUBMISSION END - FAILED');
+                releaseLock();
             }
-            
-            // Log booking stats
-            const stats = getBookingStats();
-            console.log('Booking stats:', stats);
-            
-            // Reset form
-            bookingForm.reset();
-            
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            console.log('📝 BOOKING SUBMISSION END - SUCCESS');
-            
-            // Refresh my bookings display
-            displayMyBookings();
+        };
+
+        if (typeof isSlotAvailableFirebase === 'function') {
+            isSlotAvailableFirebase(formData.date, formData.time).then((available) => {
+                if (!available) {
+                    showNotification('This time slot was just booked by someone else. Please pick another.', 'error');
+                    // Refresh the time-slot UI so the user sees the newly-taken slot
+                    if (typeof updateAvailableTimeSlots === 'function') updateAvailableTimeSlots(formData.date);
+                    releaseLock();
+                    return;
+                }
+                proceedWithSave();
+            });
         } else {
-            console.error('❌ Failed to save booking');
-            showNotification('Error processing booking. Please try again.', 'error');
-            console.log('📝 BOOKING SUBMISSION END - FAILED');
+            proceedWithSave();
         }
     });
     

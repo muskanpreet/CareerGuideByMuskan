@@ -231,6 +231,43 @@ function deleteBooking(id) {
     return deleteBookingLocal(id);
 }
 
+/**
+ * Firebase-first slot availability check. Prevents two people (or admin + a
+ * customer) from writing the same slot when localStorage on one device hasn't
+ * synced yet. Falls back to localStorage-only check if Firebase is unavailable.
+ * Returns a Promise<boolean>.
+ */
+function isSlotAvailableFirebase(date, time) {
+    return new Promise((resolve) => {
+        if (!isFirebaseInitialized) {
+            resolve(typeof isSlotAvailable === 'function' ? isSlotAvailable(date, time) : true);
+            return;
+        }
+        const db = getFirebaseDB();
+        if (!db) {
+            resolve(typeof isSlotAvailable === 'function' ? isSlotAvailable(date, time) : true);
+            return;
+        }
+        db.ref('bookings').orderByChild('date').equalTo(date).once('value')
+            .then((snapshot) => {
+                let available = true;
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const b = child.val();
+                        if (b && b.time === time) available = false;
+                    });
+                }
+                // Also union with local check so unsynced local blocks aren't ignored
+                const localOk = (typeof isSlotAvailable === 'function') ? isSlotAvailable(date, time) : true;
+                resolve(available && localOk);
+            })
+            .catch((err) => {
+                console.warn('isSlotAvailableFirebase: Firebase query failed, using local:', err);
+                resolve(typeof isSlotAvailable === 'function' ? isSlotAvailable(date, time) : true);
+            });
+    });
+}
+
 if (typeof firebase !== 'undefined') {
     initFirebase();
 }
